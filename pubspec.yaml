@@ -1,0 +1,26 @@
+name: travel_scheduler
+description: "A new Flutter project."
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: ^3.8.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+  provider: ^6.1.5
+  intl: ^0.18.1
+  url_launcher: ^6.3.1
+  uuid: ^4.4.2
+  shared_preferences: ^2.5.3
+  web: ^1.1.1
+  file_picker: ^10.1.9
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
