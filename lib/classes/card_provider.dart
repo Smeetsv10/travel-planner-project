@@ -107,11 +107,10 @@ class CardProvider extends ChangeNotifier {
       departureDatetime.hour,
       departureDatetime.minute,
     );
-    if (!otherArrivalDate) {
-      setArrivalDate(
-        departureDatetime,
-      ); // also change the arrival date (will most likely be the same)
-    }
+    setArrivalDate(
+      departureDatetime,
+    ); // also change the arrival date (will most likely be the same)
+
     notifyListeners();
   }
 
