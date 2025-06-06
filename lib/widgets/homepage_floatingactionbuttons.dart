@@ -56,6 +56,7 @@ class _HomePageFloatingActionButtonsState
       print('Arrival location: ${cardProvider.arrivalLocation}');
       print('Arrival datetime: ${cardProvider.arrivalDatetime}');
       print('Price: ${cardProvider.price}');
+      print('Url: ${cardProvider.url}');
       print('Uid: ${cardProvider.id}');
     }
     print('--- End of CardProviders ---');

@@ -104,6 +104,36 @@ class _CustomCardState extends State<CustomCard> {
     );
   }
 
+  Future<void> editTitle() async {
+    final controller = TextEditingController(text: widget.cardProvider.title);
+    final newTitle = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Edit Title'),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          decoration: const InputDecoration(labelText: 'Card Title'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(controller.text),
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+    if (newTitle != null && newTitle.trim().isNotEmpty) {
+      setState(() {
+        widget.cardProvider.setTitle(newTitle.trim());
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final cardListProvider = Provider.of<CardListProvider>(
@@ -150,21 +180,24 @@ class _CustomCardState extends State<CustomCard> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Row(
-                      children: [
-                        SizedBox(width: 60, child: widget.cardProvider.icon),
-                        Expanded(
-                          child: Text(
-                            widget.cardProvider.title,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                    GestureDetector(
+                      onDoubleTap: editTitle,
+                      child: Row(
+                        children: [
+                          SizedBox(width: 60, child: widget.cardProvider.icon),
+                          Expanded(
+                            child: Text(
+                              widget.cardProvider.title,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            overflow: TextOverflow.ellipsis,
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                     const SizedBox(height: 8),
                     widget.body,

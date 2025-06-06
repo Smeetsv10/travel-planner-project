@@ -94,6 +94,11 @@ class CardProvider extends ChangeNotifier {
   }
 
   // Setters with notifyListeners
+  void setTitle(String newTitle) {
+    title = newTitle;
+    notifyListeners();
+  }
+
   void setDepartureDatetime(DateTime dt) {
     departureDatetime = dt;
     notifyListeners();
@@ -154,12 +159,12 @@ class CardProvider extends ChangeNotifier {
   }
 
   void setDepartureLocation(String loc) {
-    departureLocation = loc;
+    departureLocation = loc.toUpperCase(); // Always uppercase
     notifyListeners();
   }
 
   void setArrivalLocation(String loc) {
-    arrivalLocation = loc;
+    arrivalLocation = loc.toUpperCase(); // Always uppercase
     notifyListeners();
   }
 
