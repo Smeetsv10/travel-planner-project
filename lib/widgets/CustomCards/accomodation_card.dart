@@ -1,13 +1,13 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:travel_scheduler/classes/card_provider.dart';
 import 'package:travel_scheduler/widgets/CustomCards/custom_card_price_field.dart';
 import 'package:travel_scheduler/widgets/CustomCards/custom_card_url_field.dart';
 import 'package:travel_scheduler/widgets/CustomCards/customcard_widget.dart';
-import 'package:http/http.dart' as http;
-import 'package:html/parser.dart' as html_parser;
-import 'package:travel_scheduler/widgets/CustomCards/custom_card_field.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'dart:typed_data';
+import 'package:desktop_drop/desktop_drop.dart';
+import 'package:pasteboard/pasteboard.dart';
 
 class AccommodationCard extends CustomCard {
   AccommodationCard({super.key, required super.cardProvider})
@@ -30,8 +30,7 @@ class _AccommodationCardBodyState extends State<_AccommodationCardBody> {
   late FocusNode priceFocusNode;
   late FocusNode urlFocusNode;
 
-  Uint8List? _imageBytes; // Drag & drop image bytes
-  String? _previewImageUrl; // Extracted from URL
+  Uint8List? _imageBytes;
 
   @override
   void initState() {
@@ -54,33 +53,6 @@ class _AccommodationCardBodyState extends State<_AccommodationCardBody> {
         }
       }
     });
-
-    urlFocusNode.addListener(() async {
-      if (!urlFocusNode.hasFocus) {
-        final url = urlController.text.trim();
-        widget.cardProvider.setUrl(url);
-
-        // Scroll to start after editing, like in flight_card
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          urlController.text = url;
-          urlController.selection = const TextSelection.collapsed(offset: 0);
-          urlScrollController.jumpTo(0);
-        });
-
-        if (url.isNotEmpty) {
-          final imgUrl = await extractPreviewImageUrl(url);
-          if (mounted) {
-            setState(() {
-              _previewImageUrl = imgUrl;
-            });
-          }
-        } else {
-          setState(() {
-            _previewImageUrl = null;
-          });
-        }
-      }
-    });
   }
 
   @override
@@ -93,118 +65,19 @@ class _AccommodationCardBodyState extends State<_AccommodationCardBody> {
     super.dispose();
   }
 
-  // Extract preview image from URL
-  Future<String?> extractPreviewImageUrl(String pageUrl) async {
-    try {
-      final response = await http.get(Uri.parse(pageUrl));
-      if (response.statusCode == 200) {
-        final document = html_parser.parse(response.body);
-
-        // Try Open Graph
-        final ogImage = document
-            .querySelector('meta[property="og:image"]')
-            ?.attributes['content'];
-        if (ogImage != null && ogImage.isNotEmpty) return ogImage;
-
-        // Try Twitter Card
-        final twitterImage = document
-            .querySelector('meta[name="twitter:image"]')
-            ?.attributes['content'];
-        if (twitterImage != null && twitterImage.isNotEmpty)
-          return twitterImage;
-
-        // Try favicon
-        final icon = document
-            .querySelector('link[rel="icon"]')
-            ?.attributes['href'];
-        if (icon != null && icon.isNotEmpty) {
-          final uri = Uri.parse(pageUrl);
-          return Uri.parse(icon).isAbsolute
-              ? icon
-              : uri.resolve(icon).toString();
-        }
-      }
-    } catch (_) {}
-    return null;
-  }
-
-  Widget _buildImagePreview() {
-    Widget? imageWidget;
-    if (_imageBytes != null) {
-      imageWidget = ClipRRect(
-        borderRadius: BorderRadius.circular(8),
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            Image.memory(
-              _imageBytes!,
-              fit: BoxFit.cover,
-              width: double.infinity,
-              height: 120,
-            ),
-            Positioned(
-              top: 4,
-              right: 4,
-              child: GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _imageBytes = null;
-                  });
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.black54,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.close, color: Colors.white, size: 20),
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-    } else if (_previewImageUrl != null) {
-      imageWidget = ClipRRect(
-        borderRadius: BorderRadius.circular(8),
-        child: Image.network(
-          _previewImageUrl!,
-          fit: BoxFit.cover,
-          width: double.infinity,
-          height: 120,
-          errorBuilder: (context, error, stackTrace) => const Center(
-            child: Text(
-              'No preview image found',
-              style: TextStyle(color: Colors.white54),
-            ),
-          ),
-        ),
-      );
-    } else {
-      imageWidget = const Center(
-        child: Text(
-          "Drag & drop an image here\nor enter a URL above",
-          textAlign: TextAlign.center,
-          style: TextStyle(color: Colors.white54),
-        ),
-      );
-    }
-
-    return Container(
-      height: 120,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.white24, width: 2),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: imageWidget,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        ImageField(
+          imageBytes: _imageBytes,
+          onImageChanged: (bytes) {
+            setState(() {
+              _imageBytes = bytes;
+            });
+          },
+        ),
         CustomCardPriceField(
           controller: priceController,
           focusNode: priceFocusNode,
@@ -216,18 +89,165 @@ class _AccommodationCardBodyState extends State<_AccommodationCardBody> {
           scrollController: urlScrollController,
         ),
         const SizedBox(height: 10),
-        DragTarget<Uint8List>(
-          onAccept: (bytes) {
-            setState(() {
-              _imageBytes = bytes;
-            });
-          },
-          onWillAccept: (data) => true,
-          builder: (context, candidateData, rejectedData) {
-            return _buildImagePreview();
-          },
-        ),
       ],
+    );
+  }
+}
+
+class ImageField extends StatefulWidget {
+  final Uint8List? imageBytes;
+  final ValueChanged<Uint8List?> onImageChanged;
+
+  const ImageField({
+    super.key,
+    required this.imageBytes,
+    required this.onImageChanged,
+  });
+
+  @override
+  State<ImageField> createState() => _ImageFieldState();
+}
+
+class _ImageFieldState extends State<ImageField> {
+  bool _hovering = false;
+  bool _isCtrlPressed = false;
+  final FocusNode _focusNode = FocusNode();
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  Future<void> _pickImageFromFile() async {
+    final result = await FilePicker.platform.pickFiles(
+      dialogTitle: 'Select an image',
+      type: FileType.image,
+      allowMultiple: false,
+    );
+    if (result == null || result.files.isEmpty) return;
+    final bytes = result.files.single.bytes;
+    if (bytes != null) {
+      widget.onImageChanged(bytes);
+    }
+  }
+
+  Future<void> _pasteImageFromClipboard() async {
+    final imageBytes = await Pasteboard.image;
+    if (imageBytes != null) {
+      widget.onImageChanged(imageBytes);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No image found in clipboard')),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return DropTarget(
+      onDragDone: (detail) async {
+        if (detail.files.isNotEmpty) {
+          final file = detail.files.first;
+          final bytes = await file.readAsBytes();
+          widget.onImageChanged(bytes);
+        }
+      },
+      child: MouseRegion(
+        onEnter: (_) {
+          print('Mouse hover detected on ImageField');
+          _focusNode
+              .requestFocus(); // 🔧 Fix: Ensures Focus widget gets key events
+          setState(() => _hovering = true);
+        },
+        onExit: (_) {
+          setState(() {
+            _hovering = false;
+            _isCtrlPressed = false;
+          });
+          _focusNode.unfocus(); // Unfocus when mouse exits
+        },
+        child: GestureDetector(
+          onDoubleTap: _pickImageFromFile,
+          child: Focus(
+            focusNode: _focusNode,
+            autofocus: false,
+            onKeyEvent: (node, event) {
+              final keysPressed = HardwareKeyboard.instance.logicalKeysPressed;
+
+              final isCtrlPressed =
+                  keysPressed.contains(LogicalKeyboardKey.controlLeft) ||
+                  keysPressed.contains(LogicalKeyboardKey.controlRight);
+              final isVPressed = event.logicalKey == LogicalKeyboardKey.keyV;
+              if (isCtrlPressed) {
+                setState(() {
+                  _isCtrlPressed = true;
+                });
+              }
+              if (_hovering &&
+                  isVPressed &&
+                  _isCtrlPressed &&
+                  event is KeyDownEvent) {
+                _pasteImageFromClipboard();
+                return KeyEventResult.handled;
+              }
+
+              return KeyEventResult.ignored;
+            },
+            child: Container(
+              height: 120,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.white24, width: 2),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: widget.imageBytes != null
+                  ? Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.memory(
+                            widget.imageBytes!,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            height: 120,
+                          ),
+                        ),
+                        Positioned(
+                          top: 0,
+                          right: 0,
+                          child: InkWell(
+                            onTap: () => widget.onImageChanged(null),
+                            child: Container(
+                              width: 25,
+                              height: 25,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                color: Colors.black54,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.close,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
+                  : Center(
+                      child: Text(
+                        "Double click, drag, or paste (Ctrl+V or right-click) an image here",
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(color: Colors.white54),
+                      ),
+                    ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
