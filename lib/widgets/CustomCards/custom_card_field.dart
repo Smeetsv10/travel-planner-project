@@ -44,6 +44,17 @@ class CustomCardField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (controller != null && focusNode != null) {
+      focusNode!.addListener(() {
+        if (focusNode!.hasFocus) {
+          controller!.selection = TextSelection(
+            baseOffset: 0,
+            extentOffset: controller!.text.length,
+          );
+        }
+      });
+    }
+
     final bool isDateTimeField =
         dateTime != null && onDatePicked != null && onTimePicked != null;
     final _border =
