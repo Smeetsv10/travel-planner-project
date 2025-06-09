@@ -18,6 +18,9 @@ class CustomCardField extends StatelessWidget {
   final BoxDecoration? borderDecoration;
   final TextStyle? labelStyle;
   final TextStyle? dateTimeStyle;
+  final bool flagDateField;
+  final bool flagTimeField;
+  final bool flagTextField; // <-- New flag
 
   const CustomCardField({
     super.key,
@@ -35,12 +38,10 @@ class CustomCardField extends StatelessWidget {
     this.borderDecoration,
     this.labelStyle,
     this.dateTimeStyle,
+    this.flagDateField = false,
+    this.flagTimeField = false,
+    this.flagTextField = true, // <-- Default true
   });
-
-  String _formatDate(DateTime dt) =>
-      "${dt.day.toString().padLeft(2, '0')}-${dt.month.toString().padLeft(2, '0')}-${dt.year}";
-  String _formatTime(DateTime dt) =>
-      "${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}"; // 24-hour format
 
   @override
   Widget build(BuildContext context) {
@@ -55,28 +56,40 @@ class CustomCardField extends StatelessWidget {
       });
     }
 
-    final bool isDateTimeField =
-        dateTime != null && onDatePicked != null && onTimePicked != null;
-    final _border =
+    final border =
         borderDecoration ??
         BoxDecoration(
           border: Border.all(color: Colors.white38, width: 1),
           borderRadius: BorderRadius.circular(4),
         );
-    final _label = labelStyle ?? const TextStyle(color: Colors.white70);
-    final _dtStyle =
-        dateTimeStyle ?? const TextStyle(color: Colors.white54, fontSize: 14);
+    final lbStyle = labelStyle ?? const TextStyle(color: Colors.white70);
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 6),
-      width: 303,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          if (iconWidget != null) ...[iconWidget!, const SizedBox(width: 8)],
-          SizedBox(width: 40, child: Text(label, style: _label)),
-          const SizedBox(width: 5),
-          if (controller != null && focusNode != null) ...[
+          if (iconWidget != null || label.isNotEmpty)
+            SizedBox(
+              width: 75,
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  if (iconWidget != null) iconWidget!,
+                  if (iconWidget != null && label.isNotEmpty)
+                    const SizedBox(width: 4),
+                  if (label.isNotEmpty)
+                    Expanded(
+                      child: Text(
+                        label,
+                        style: lbStyle,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          if (flagTextField && controller != null && focusNode != null) ...[
             Expanded(
               child: TextField(
                 controller: controller,
@@ -99,50 +112,115 @@ class CustomCardField extends StatelessWidget {
                 inputFormatters: inputFormatters,
               ),
             ),
+            SizedBox(width: 10),
           ],
-          if (isDateTimeField && dateTime != null) ...[
-            const SizedBox(width: 12),
-            InkWell(
-              onTap: () async {
-                final picked = await showDatePicker(
-                  context: context,
-                  initialDate: dateTime!,
-                  firstDate: DateTime(2000),
-                  lastDate: DateTime(2100),
-                );
-                if (picked != null) onDatePicked!(picked);
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
-                decoration: _border,
-                child: Text(_formatDate(dateTime!), style: _dtStyle),
-              ),
+          if (flagDateField && dateTime != null) ...[
+            CustomCardField_Date(
+              dateTime: dateTime!,
+              onDatePicked: onDatePicked,
+              border: border,
+              dateTimeStyle: dateTimeStyle,
             ),
-            const SizedBox(width: 8),
-            InkWell(
-              onTap: () async {
-                final picked = await showTimePicker(
-                  context: context,
-                  initialTime: TimeOfDay.fromDateTime(dateTime!),
-                  builder: (context, child) {
-                    return MediaQuery(
-                      data: MediaQuery.of(
-                        context,
-                      ).copyWith(alwaysUse24HourFormat: true),
-                      child: child!,
-                    );
-                  },
-                );
-                if (picked != null) onTimePicked!(picked);
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
-                decoration: _border,
-                child: Text(_formatTime(dateTime!), style: _dtStyle),
-              ),
+            SizedBox(width: 10),
+          ],
+          if (flagTimeField && dateTime != null) ...[
+            CustomCardField_Time(
+              dateTime: dateTime!,
+              onTimePicked: onTimePicked,
+              border: border,
+              dateTimeStyle: dateTimeStyle,
             ),
+            SizedBox(width: 10),
           ],
         ],
+      ),
+    );
+  }
+}
+
+class CustomCardField_Date extends StatelessWidget {
+  final DateTime dateTime;
+  final void Function(DateTime)? onDatePicked;
+  final BoxDecoration? border;
+  final TextStyle? dateTimeStyle;
+
+  const CustomCardField_Date({
+    super.key,
+    required this.dateTime,
+    this.onDatePicked,
+    this.border,
+    this.dateTimeStyle,
+  });
+
+  String _formatDate(DateTime dt) =>
+      "${dt.day.toString().padLeft(2, '0')}-${dt.month.toString().padLeft(2, '0')}-${dt.year}";
+
+  @override
+  Widget build(BuildContext context) {
+    final dtStyle =
+        dateTimeStyle ?? const TextStyle(color: Colors.white54, fontSize: 14);
+
+    return InkWell(
+      onTap: () async {
+        final picked = await showDatePicker(
+          context: context,
+          initialDate: dateTime,
+          firstDate: DateTime(2000),
+          lastDate: DateTime(2100),
+        );
+        if (picked != null && onDatePicked != null) onDatePicked!(picked);
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+        decoration: border,
+        child: Text(_formatDate(dateTime), style: dtStyle),
+      ),
+    );
+  }
+}
+
+class CustomCardField_Time extends StatelessWidget {
+  final DateTime dateTime;
+  final void Function(TimeOfDay)? onTimePicked;
+  final BoxDecoration? border;
+  final TextStyle? dateTimeStyle;
+
+  const CustomCardField_Time({
+    super.key,
+    required this.dateTime,
+    this.onTimePicked,
+    this.border,
+    this.dateTimeStyle,
+  });
+
+  String _formatTime(DateTime dt) =>
+      "${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}"; // 24-hour format
+
+  @override
+  Widget build(BuildContext context) {
+    final dtStyle =
+        dateTimeStyle ?? const TextStyle(color: Colors.white54, fontSize: 14);
+
+    return InkWell(
+      onTap: () async {
+        final picked = await showTimePicker(
+          context: context,
+          initialTime: TimeOfDay.fromDateTime(dateTime),
+          builder: (context, child) {
+            return MediaQuery(
+              data: MediaQuery.of(
+                context,
+              ).copyWith(alwaysUse24HourFormat: true),
+              child: child!,
+            );
+          },
+        );
+        if (picked != null && onTimePicked != null) onTimePicked!(picked);
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+        decoration: border,
+        child: Text(_formatTime(dateTime), style: dtStyle),
       ),
     );
   }

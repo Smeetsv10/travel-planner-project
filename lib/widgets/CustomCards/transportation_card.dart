@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:travel_scheduler/classes/card_provider.dart';
-import 'package:travel_scheduler/widgets/CustomCards/customcard_widget.dart';
+import 'package:travel_scheduler/widgets/CustomCards/customcard.dart';
 
 class TransportationCard extends CustomCard {
   TransportationCard({

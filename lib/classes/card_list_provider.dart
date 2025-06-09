@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:travel_scheduler/classes/card_provider.dart';
 import 'package:travel_scheduler/widgets/CustomCards/accomodation_card.dart';
-import 'package:travel_scheduler/widgets/CustomCards/customcard_widget.dart';
+import 'package:travel_scheduler/widgets/CustomCards/customcard.dart';
 import 'package:travel_scheduler/widgets/CustomCards/flight_card.dart';
 import 'package:travel_scheduler/widgets/CustomCards/transportation_card.dart';
 

@@ -1,21 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 import 'package:travel_scheduler/classes/card_provider.dart';
 import 'package:travel_scheduler/classes/functions.dart';
 import 'package:travel_scheduler/widgets/CustomCards/custom_card_field.dart';
 import 'package:travel_scheduler/widgets/CustomCards/custom_card_price_field.dart';
 import 'package:travel_scheduler/widgets/CustomCards/custom_card_url_field.dart';
-import 'package:travel_scheduler/widgets/CustomCards/customcard_widget.dart';
-import 'package:travel_scheduler/widgets/date_picker_dialog.dart';
-import 'package:travel_scheduler/widgets/time_picker_dialog.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:travel_scheduler/widgets/CustomCards/customcard.dart';
 
 class FlightCard extends CustomCard {
-  FlightCard({
-    super.key,
-    required super.cardProvider, // Super parameter
-  }) : super(body: _FlightCardBody(cardProvider: cardProvider));
+  FlightCard({super.key, required super.cardProvider})
+    : super(body: _FlightCardBody(cardProvider: cardProvider));
 }
 
 class _FlightCardBody extends StatefulWidget {
@@ -147,6 +140,8 @@ class _FlightCardBodyState extends State<_FlightCardBody> {
               onDatePicked: widget.cardProvider.setDepartureDate,
               onTimePicked: widget.cardProvider.setDepartureTime,
               inputFormatters: [UpperCaseTextFormatter()],
+              flagDateField: true,
+              flagTimeField: true,
             ),
             CustomCardField(
               label: "To",
@@ -158,6 +153,8 @@ class _FlightCardBodyState extends State<_FlightCardBody> {
               onDatePicked: widget.cardProvider.setArrivalDate,
               onTimePicked: widget.cardProvider.setArrivalTime,
               inputFormatters: [UpperCaseTextFormatter()],
+              flagDateField: true,
+              flagTimeField: true,
             ),
             CustomCardPriceField(
               controller: priceController,
