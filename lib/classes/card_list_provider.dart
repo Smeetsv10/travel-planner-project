@@ -13,7 +13,9 @@ import 'package:travel_scheduler/widgets/CustomCards/transportation_card.dart';
 
 class CardListProvider with ChangeNotifier {
   List<CardProvider> _cardProviders = [];
-  List<Connection> _connections = [];
+  List<Connection> _connections = [
+    Connection(fromOffset: Offset(0, 0), toOffset: Offset(100, 100)),
+  ];
 
   List<Connection> get connections => List.unmodifiable(_connections);
   List<CardProvider> get cardProviders => List.unmodifiable(_cardProviders);

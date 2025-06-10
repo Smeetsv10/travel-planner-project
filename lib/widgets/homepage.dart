@@ -28,6 +28,8 @@ class _HomepageState extends State<Homepage> {
       final double offsetX = (canvasWidth - screenSize.width) / -2;
       final double offsetY = (canvasHeight - screenSize.height) / -2;
 
+      // _transformationController.value = Matrix4.identity()
+      //   ..translateByDouble(offsetX, offsetY, 0.0, 0.0);
       _transformationController.value = Matrix4.identity()
         ..translate(offsetX, offsetY);
 
