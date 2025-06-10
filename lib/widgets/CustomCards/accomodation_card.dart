@@ -67,66 +67,71 @@ class _AccommodationCardBodyState extends State<_AccommodationCardBody> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        ImageField(
-          imageBytes: _imageBytes,
-          onImageChanged: (bytes) {
-            setState(() {
-              _imageBytes = bytes;
-            });
-          },
-        ),
-        CustomCardField(
-          label: "",
-          iconWidget: const Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.event, color: Colors.white),
-              Icon(Icons.arrow_forward, color: Colors.white),
-            ],
-          ),
-          dateTime: widget.cardProvider.arrivalDatetime,
-          onDatePicked: widget.cardProvider.setArrivalDate,
-          flagDateField: true,
-          flagTextField: false,
-        ),
-        CustomCardField(
-          label: "",
-          iconWidget: const Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.event, color: Colors.white),
-              Icon(Icons.arrow_back, color: Colors.white),
-            ],
-          ),
-          dateTime: widget.cardProvider.departureDatetime,
-          onDatePicked: widget.cardProvider.setDepartureDate,
-          flagDateField: true,
-          flagTextField: false,
-        ),
-
-        Row(
-          mainAxisSize: MainAxisSize.min,
+    return AnimatedBuilder(
+      animation: widget.cardProvider,
+      builder: (context, _) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: CustomCardPriceField(
-                controller: priceController,
-                focusNode: priceFocusNode,
-              ),
+            ImageField(
+              imageBytes: _imageBytes,
+              onImageChanged: (bytes) {
+                setState(() {
+                  _imageBytes = bytes;
+                });
+              },
             ),
-            Expanded(
-              child: CustomCardUrlField(
-                controller: urlController,
-                focusNode: urlFocusNode,
-                onSubmitted: widget.cardProvider.setUrl,
-                scrollController: urlScrollController,
+            CustomCardField(
+              label: "Check-in",
+              iconWidget: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.event, color: Colors.white),
+                  Icon(Icons.arrow_forward, color: Colors.white),
+                ],
               ),
+              dateTime: widget.cardProvider.arrivalDatetime,
+              onDatePicked: widget.cardProvider.setArrivalDate,
+              flagDateField: true,
+              flagTextField: false,
+            ),
+            CustomCardField(
+              label: "Check-out",
+              iconWidget: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.event, color: Colors.white),
+                  Icon(Icons.arrow_back, color: Colors.white),
+                ],
+              ),
+              dateTime: widget.cardProvider.departureDatetime,
+              onDatePicked: widget.cardProvider.setDepartureDate,
+              flagDateField: true,
+              flagTextField: false,
+            ),
+
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Expanded(
+                  child: CustomCardPriceField(
+                    controller: priceController,
+                    focusNode: priceFocusNode,
+                  ),
+                ),
+                Expanded(
+                  child: CustomCardUrlField(
+                    controller: urlController,
+                    focusNode: urlFocusNode,
+                    onSubmitted: widget.cardProvider.setUrl,
+                    scrollController: urlScrollController,
+                  ),
+                ),
+              ],
             ),
           ],
-        ),
-      ],
+        );
+      },
     );
   }
 }

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:travel_scheduler/classes/app_settings.dart';
 import 'package:travel_scheduler/classes/card_list_provider.dart';
 import 'package:travel_scheduler/classes/card_provider.dart';
+import 'package:travel_scheduler/widgets/CustomCards/connection_node.dart';
 
 class CustomCard extends StatefulWidget {
   final CardProvider cardProvider;
@@ -21,6 +22,14 @@ class CustomCard extends StatefulWidget {
 class _CustomCardState extends State<CustomCard> {
   late Offset _position;
   bool _isDragging = false;
+  final GlobalKey _fromNodeKey = GlobalKey();
+  final GlobalKey _toNodeKey = GlobalKey();
+
+  static Offset? dragStart;
+  static Offset? dragCurrent;
+  static GlobalKey? dragFromKey;
+  static GlobalKey? dragToKey;
+  static List<(GlobalKey, GlobalKey)> connections = [];
 
   @override
   void initState() {
@@ -134,6 +143,38 @@ class _CustomCardState extends State<CustomCard> {
     }
   }
 
+  void _onFromDragStart() {
+    final box = _fromNodeKey.currentContext?.findRenderObject() as RenderBox?;
+    if (box != null) {
+      setState(() {
+        dragStart = box.localToGlobal(box.size.center(Offset.zero));
+        dragCurrent = dragStart;
+        dragFromKey = _fromNodeKey;
+      });
+    }
+  }
+
+  void _onFromDragUpdate(Offset globalPos) {
+    setState(() {
+      dragCurrent = globalPos;
+    });
+  }
+
+  void _onFromDragEnd() {
+    final toBox = _toNodeKey.currentContext?.findRenderObject() as RenderBox?;
+    if (toBox != null && dragCurrent != null) {
+      final toRect = toBox.localToGlobal(Offset.zero) & toBox.size;
+      if (toRect.contains(dragCurrent!)) {
+        connections.add((dragFromKey!, _toNodeKey));
+      }
+    }
+    setState(() {
+      dragStart = null;
+      dragCurrent = null;
+      dragFromKey = null;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final cardListProvider = Provider.of<CardListProvider>(
@@ -205,6 +246,45 @@ class _CustomCardState extends State<CustomCard> {
                 ),
               ),
             ),
+            Positioned(
+              left: 10,
+              top: 40,
+              child: FromConnectionNode(
+                nodeKey: _fromNodeKey,
+                onDragStart: _onFromDragStart,
+                onDragUpdate: _onFromDragUpdate,
+                onDragEnd: _onFromDragEnd,
+              ),
+            ),
+            Positioned(
+              right: 10,
+              top: 40,
+              child: ToConnectionNode(nodeKey: _toNodeKey),
+            ),
+            if (dragStart != null && dragCurrent != null)
+              Positioned.fill(
+                child: IgnorePointer(
+                  child: ConnectionSpline(start: dragStart!, end: dragCurrent!),
+                ),
+              ),
+            ...connections.map((conn) {
+              final fromBox =
+                  conn.$1.currentContext?.findRenderObject() as RenderBox?;
+              final toBox =
+                  conn.$2.currentContext?.findRenderObject() as RenderBox?;
+              if (fromBox != null && toBox != null) {
+                final from = fromBox.localToGlobal(
+                  fromBox.size.center(Offset.zero),
+                );
+                final to = toBox.localToGlobal(toBox.size.center(Offset.zero));
+                return Positioned.fill(
+                  child: IgnorePointer(
+                    child: ConnectionSpline(start: from, end: to),
+                  ),
+                );
+              }
+              return const SizedBox.shrink();
+            }),
             _buildDeleteIcon(context, cardListProvider),
           ],
         ),

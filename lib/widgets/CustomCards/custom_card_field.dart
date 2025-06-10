@@ -40,7 +40,7 @@ class CustomCardField extends StatelessWidget {
     this.dateTimeStyle,
     this.flagDateField = false,
     this.flagTimeField = false,
-    this.flagTextField = true, // <-- Default true
+    this.flagTextField = true,
   });
 
   @override
@@ -71,7 +71,7 @@ class CustomCardField extends StatelessWidget {
         children: [
           if (iconWidget != null || label.isNotEmpty)
             SizedBox(
-              width: 75,
+              width: label.length > 5 ? 130 : 75,
               child: Row(
                 mainAxisSize: MainAxisSize.max,
                 children: [

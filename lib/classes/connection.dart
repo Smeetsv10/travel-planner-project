@@ -1,6 +1,8 @@
-class Connection {
-  final String fromId;
-  final String toId;
+import 'package:travel_scheduler/classes/card_provider.dart';
 
-  Connection({required this.fromId, required this.toId});
+class Connection {
+  final CardProvider fromCardProvider;
+  final CardProvider toCardProvider;
+
+  Connection({required this.fromCardProvider, required this.toCardProvider});
 }

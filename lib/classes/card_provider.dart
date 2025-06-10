@@ -17,7 +17,6 @@ class CardProvider extends ChangeNotifier {
   String arrivalLocation;
   String url;
   double price;
-  bool otherArrivalDate;
   Color color;
 
   CardProvider({
@@ -31,7 +30,6 @@ class CardProvider extends ChangeNotifier {
     String? arrivalLocation,
     String? url,
     double? price,
-    bool? otherArrivalDate,
     Color? color,
   }) : cardType = cardType ?? CardType.blank,
        id = id ?? const Uuid().v4(),
@@ -42,7 +40,6 @@ class CardProvider extends ChangeNotifier {
        arrivalLocation = arrivalLocation ?? '',
        url = url ?? '',
        price = price ?? 0.0,
-       otherArrivalDate = otherArrivalDate ?? false,
        icon = _getIcon(cardType ?? CardType.blank),
        title = title ?? _getTitle(cardType ?? CardType.blank),
        color = color ?? _getColor(cardType ?? CardType.blank);
@@ -112,10 +109,6 @@ class CardProvider extends ChangeNotifier {
       departureDatetime.hour,
       departureDatetime.minute,
     );
-    setArrivalDate(
-      departureDatetime,
-    ); // also change the arrival date (will most likely be the same)
-
     notifyListeners();
   }
 
@@ -138,7 +131,6 @@ class CardProvider extends ChangeNotifier {
       arrivalDatetime.hour,
       arrivalDatetime.minute,
     );
-    otherArrivalDate = true;
     notifyListeners();
   }
 
@@ -192,7 +184,6 @@ class CardProvider extends ChangeNotifier {
     'arrivalLocation': arrivalLocation,
     'url': url,
     'price': price,
-    'otherArrivalDate': otherArrivalDate,
     'position': {'dx': position.dx, 'dy': position.dy},
     'cardType': cardType.name,
   };
@@ -207,7 +198,6 @@ class CardProvider extends ChangeNotifier {
       arrivalLocation: json['arrivalLocation'] ?? '',
       url: json['url'] ?? '',
       price: (json['price'] ?? 0).toDouble(),
-      otherArrivalDate: json['otherArrivalDate'] ?? false,
       position: Offset(
         (json['position']?['dx'] ?? 0).toDouble(),
         (json['position']?['dy'] ?? 0).toDouble(),

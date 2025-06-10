@@ -5,6 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:travel_scheduler/classes/card_provider.dart';
+import 'package:travel_scheduler/classes/connection.dart';
 import 'package:travel_scheduler/widgets/CustomCards/accomodation_card.dart';
 import 'package:travel_scheduler/widgets/CustomCards/customcard.dart';
 import 'package:travel_scheduler/widgets/CustomCards/flight_card.dart';
@@ -12,7 +13,9 @@ import 'package:travel_scheduler/widgets/CustomCards/transportation_card.dart';
 
 class CardListProvider with ChangeNotifier {
   List<CardProvider> _cardProviders = [];
+  List<Connection> _connections = [];
 
+  List<Connection> get connections => List.unmodifiable(_connections);
   List<CardProvider> get cardProviders => List.unmodifiable(_cardProviders);
 
   void addCardProvider(CardProvider cardProvider) {
