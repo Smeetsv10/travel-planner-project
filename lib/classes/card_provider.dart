@@ -7,6 +7,8 @@ enum CardType { blank, outFlight, returnFlight, accommodation, transportation }
 class CardProvider extends ChangeNotifier {
   final String id;
   final CardType cardType;
+  final GlobalKey fromNodeKey = GlobalKey.new();
+  final GlobalKey toNodeKey = GlobalKey.new();
 
   String title;
   Offset position;
@@ -19,10 +21,13 @@ class CardProvider extends ChangeNotifier {
   double price;
   Color color;
 
+  bool isConnect = false;
+
   CardProvider({
     CardType? cardType,
     String? id,
     Offset? position,
+
     DateTime? departureDatetime,
     DateTime? arrivalDatetime,
     String? title,
@@ -88,6 +93,24 @@ class CardProvider extends ChangeNotifier {
       case CardType.transportation:
         return const Color.fromRGBO(46, 125, 50, 0.9); // Forest Green
     }
+  }
+
+  Offset getFromKeyOffset() {
+    final context = fromNodeKey.currentContext;
+    if (context == null) return Offset.zero;
+    final renderBox = context.findRenderObject() as RenderBox?;
+    if (renderBox == null) return Offset.zero;
+    final size = renderBox.size;
+    return renderBox.localToGlobal(Offset(size.width / 2, size.height / 2));
+  }
+
+  Offset getToKeyOffset() {
+    final context = toNodeKey.currentContext;
+    if (context == null) return Offset.zero;
+    final renderBox = context.findRenderObject() as RenderBox?;
+    if (renderBox == null) return Offset.zero;
+    final size = renderBox.size;
+    return renderBox.localToGlobal(Offset(size.width / 2, size.height / 2));
   }
 
   // Setters with notifyListeners

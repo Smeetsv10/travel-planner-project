@@ -13,13 +13,14 @@ import 'package:travel_scheduler/widgets/CustomCards/transportation_card.dart';
 
 class CardListProvider with ChangeNotifier {
   List<CardProvider> _cardProviders = [];
-  List<Connection> _connections = [
-    Connection(fromOffset: Offset(0, 0), toOffset: Offset(100, 100)),
-  ];
+  List<Connection> _connections = [];
 
   List<Connection> get connections => List.unmodifiable(_connections);
   List<CardProvider> get cardProviders => List.unmodifiable(_cardProviders);
+  // Dependant properties
+  int get totalCardCount => _cardProviders.length;
 
+  // CardProvider management
   void addCardProvider(CardProvider cardProvider) {
     _cardProviders.add(cardProvider);
     notifyListeners();
@@ -49,6 +50,30 @@ class CardListProvider with ChangeNotifier {
       // Remove the selected card and add it to the end (top of stack)
       final selectedProvider = _cardProviders.removeAt(selectedIndex);
       _cardProviders.add(selectedProvider);
+      notifyListeners();
+    }
+  }
+
+  // Connections management
+  void addConnection(Connection connection) {
+    _connections.add(connection);
+    notifyListeners();
+  }
+
+  void removeConnection(Connection connection) {
+    _connections.remove(connection);
+    notifyListeners();
+  }
+
+  void clearConnections() {
+    _connections.clear();
+    notifyListeners();
+  }
+
+  void updateConnection(Connection oldConnection, Connection newConnection) {
+    final index = _connections.indexOf(oldConnection);
+    if (index != -1) {
+      _connections[index] = newConnection;
       notifyListeners();
     }
   }
@@ -153,7 +178,4 @@ class CardListProvider with ChangeNotifier {
     final jsonList = jsonDecode(contents) as List<dynamic>;
     fromJson(jsonList);
   }
-
-  // Dependant properties
-  int get totalCardCount => _cardProviders.length;
 }

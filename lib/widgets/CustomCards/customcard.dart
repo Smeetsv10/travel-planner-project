@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:travel_scheduler/classes/app_settings.dart';
 import 'package:travel_scheduler/classes/card_list_provider.dart';
 import 'package:travel_scheduler/classes/card_provider.dart';
+import 'package:travel_scheduler/classes/connection.dart';
 import 'package:travel_scheduler/widgets/CustomCards/connection_node.dart';
 
 class CustomCard extends StatefulWidget {
@@ -22,14 +23,10 @@ class CustomCard extends StatefulWidget {
 class _CustomCardState extends State<CustomCard> {
   late Offset _position;
   bool _isDragging = false;
-  final GlobalKey _fromNodeKey = GlobalKey();
-  final GlobalKey _toNodeKey = GlobalKey();
 
-  static Offset? dragStart;
-  static Offset? dragCurrent;
-  static GlobalKey? dragFromKey;
-  static GlobalKey? dragToKey;
-  static List<(GlobalKey, GlobalKey)> connections = [];
+  Offset? _dragStart;
+  Offset? _dragCurrent;
+  bool _isConnecting = false;
 
   @override
   void initState() {
@@ -143,12 +140,116 @@ class _CustomCardState extends State<CustomCard> {
     }
   }
 
+  void _onFromDragStart(Offset globalPosition) {
+    setState(() {
+      _isConnecting = true;
+      _dragStart = globalPosition;
+      _dragCurrent = globalPosition;
+    });
+  }
+
+  void _onFromDragUpdate(Offset globalPosition) {
+    setState(() {
+      _dragStart = widget.cardProvider.getFromKeyOffset();
+      _dragCurrent = globalPosition;
+    });
+  }
+
+  void _onToDragStart(Offset globalPosition) {
+    setState(() {
+      _isConnecting = true;
+      _dragStart = globalPosition;
+      _dragCurrent = globalPosition;
+    });
+  }
+
+  void _onToDragUpdate(Offset globalPosition) {
+    setState(() {
+      _dragStart = widget.cardProvider.getToKeyOffset();
+      _dragCurrent = globalPosition;
+    });
+  }
+
+  void _onFromDragEnd(Offset globalPosition) {
+    final cardListProvider = Provider.of<CardListProvider>(
+      context,
+      listen: false,
+    );
+
+    for (final targetCard in cardListProvider.cardProviders) {
+      // Don't connect to self
+      if (targetCard.id == widget.cardProvider.id) continue;
+
+      // Check if the drag ended on the ToNode of another card
+      final toNodeKey = targetCard.toNodeKey;
+      final context = toNodeKey.currentContext;
+      if (context == null) continue;
+      final renderObject = context.findRenderObject();
+      if (renderObject is! RenderBox) continue;
+      final toBox = renderObject as RenderBox;
+      final toRect = toBox.localToGlobal(Offset.zero) & toBox.size;
+      if (toRect.contains(globalPosition)) {
+        // Add connection using offsets
+        cardListProvider.addConnection(
+          Connection(
+            startOffset: widget.cardProvider.getFromKeyOffset(),
+            endOffset: targetCard.getToKeyOffset(),
+          ),
+        );
+        break;
+      }
+    }
+
+    setState(() {
+      _isConnecting = false;
+      _dragStart = null;
+      _dragCurrent = null;
+    });
+  }
+
+  void _onToDragEnd(Offset globalPosition) {
+    final cardListProvider = Provider.of<CardListProvider>(
+      context,
+      listen: false,
+    );
+
+    for (final targetCard in cardListProvider.cardProviders) {
+      // Don't connect to self
+      if (targetCard.id == widget.cardProvider.id) continue;
+
+      // Check if the drag ended on the FromNode of another card
+      final fromNodeKey = targetCard.fromNodeKey;
+      final fromBox =
+          fromNodeKey.currentContext?.findRenderObject() as RenderBox?;
+      if (fromBox != null) {
+        final fromRect = fromBox.localToGlobal(Offset.zero) & fromBox.size;
+        if (fromRect.contains(globalPosition)) {
+          // Add connection using offsets
+          cardListProvider.addConnection(
+            Connection(
+              startOffset: targetCard.getFromKeyOffset(),
+              endOffset: widget.cardProvider.getToKeyOffset(),
+            ),
+          );
+          break;
+        }
+      }
+    }
+
+    setState(() {
+      _isConnecting = false;
+      _dragStart = null;
+      _dragCurrent = null;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final cardListProvider = Provider.of<CardListProvider>(
       context,
       listen: false,
     );
+    final GlobalKey _stackKey = GlobalKey();
 
     return Positioned(
       left: _position.dx,
@@ -171,6 +272,8 @@ class _CustomCardState extends State<CustomCard> {
           setState(() => _isDragging = false);
         },
         child: Stack(
+          key: _stackKey,
+
           clipBehavior: Clip.none,
           children: [
             Card(
@@ -215,7 +318,46 @@ class _CustomCardState extends State<CustomCard> {
               ),
             ),
             // From Node
-            // To Node
+            Positioned(
+              right: 0,
+              top: 40,
+              child: FromConnectionNode(
+                cardProvider: widget.cardProvider,
+                nodeKey: widget.cardProvider.fromNodeKey,
+                onDragStart: _onFromDragStart,
+                onDragUpdate: _onFromDragUpdate,
+                onDragEnd: _onFromDragEnd,
+              ),
+            ),
+            // To Node (left side)
+            Positioned(
+              left: 0,
+              top: 40,
+              child: ToConnectionNode(
+                cardProvider: widget.cardProvider,
+                nodeKey: widget.cardProvider.toNodeKey,
+                onDragStart: _onToDragStart,
+                onDragUpdate: _onToDragUpdate,
+                onDragEnd: _onToDragEnd,
+              ),
+            ),
+            if (_isConnecting && _dragStart != null && _dragCurrent != null)
+              Positioned.fill(
+                child: IgnorePointer(
+                  child: Builder(
+                    builder: (context) {
+                      final box =
+                          _stackKey.currentContext?.findRenderObject()
+                              as RenderBox?;
+                      final localStart =
+                          box?.globalToLocal(_dragStart!) ?? Offset.zero;
+                      final localEnd =
+                          box?.globalToLocal(_dragCurrent!) ?? Offset.zero;
+                      return ConnectionSpline(start: localStart, end: localEnd);
+                    },
+                  ),
+                ),
+              ),
             _buildDeleteIcon(context, cardListProvider),
           ],
         ),

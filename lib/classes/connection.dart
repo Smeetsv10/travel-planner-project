@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
 class Connection {
-  final Offset fromOffset;
-  final Offset toOffset;
+  final Offset startOffset;
+  final Offset endOffset;
 
-  Connection({required this.fromOffset, required this.toOffset});
+  Connection({required this.startOffset, required this.endOffset});
 
   Widget buildConnection() {
-    return ConnectionSpline(start: fromOffset, end: toOffset);
+    return ConnectionSpline(start: startOffset, end: endOffset);
   }
 }
 

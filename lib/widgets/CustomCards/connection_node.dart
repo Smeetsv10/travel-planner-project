@@ -4,7 +4,7 @@ import 'package:travel_scheduler/classes/card_provider.dart';
 class ConnectionNode extends StatelessWidget {
   final void Function(Offset)? onDragStart;
   final void Function(Offset)? onDragUpdate;
-  final VoidCallback? onDragEnd;
+  final void Function(Offset)? onDragEnd;
   final Color color;
   final double size;
   final CardProvider cardProvider;
@@ -32,15 +32,13 @@ class ConnectionNode extends StatelessWidget {
     return GestureDetector(
       key: nodeKey,
       onPanStart: (details) {
-        debugPrint('ConnectionNode: onPanStart at ${details.globalPosition}');
         onDragStart?.call(details.globalPosition);
       },
       onPanUpdate: (details) {
         onDragUpdate?.call(details.globalPosition);
       },
-      onPanEnd: (_) {
-        debugPrint('ConnectionNode: onPanEnd');
-        onDragEnd?.call();
+      onPanEnd: (details) {
+        onDragEnd?.call(details.globalPosition);
       },
       child: Container(
         width: size,

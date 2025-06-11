@@ -68,12 +68,18 @@ class _HomepageState extends State<Homepage> {
                   children: [
                     // Background
                     Positioned.fill(child: const BackgroundGridWidget()),
-
-                    // Cards
+                    // Cards and Connections
                     SizedBox(
                       width: MediaQuery.of(context).size.width * 4,
                       height: MediaQuery.of(context).size.height * 4,
-                      child: Stack(children: cardListProvider.buildAllCards()),
+                      child: Stack(
+                        children: [
+                          ...cardListProvider.connections.map(
+                            (conn) => conn.buildConnection(),
+                          ),
+                          ...cardListProvider.buildAllCards(),
+                        ],
+                      ),
                     ),
                   ],
                 );
