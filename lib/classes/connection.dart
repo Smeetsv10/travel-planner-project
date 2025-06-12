@@ -1,13 +1,63 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:travel_scheduler/classes/card_list_provider.dart';
+import 'package:travel_scheduler/classes/card_provider.dart';
 
 class Connection {
-  final Offset startOffset;
-  final Offset endOffset;
+  final GlobalKey startNodeKey;
+  final GlobalKey endNodeKey;
+  final CardProvider startProvider;
+  final CardProvider endProvider;
 
-  Connection({required this.startOffset, required this.endOffset});
+  Connection({
+    required this.startNodeKey,
+    required this.endNodeKey,
+    required this.startProvider,
+    required this.endProvider,
+  });
 
-  Widget buildConnection() {
-    return ConnectionSpline(start: startOffset, end: endOffset);
+  Widget buildConnection(GlobalKey stackKey) {
+    return AnimatedBuilder(
+      animation: Listenable.merge([startProvider, endProvider]),
+      builder: (context, _) {
+        final box = stackKey.currentContext?.findRenderObject() as RenderBox?;
+        if (box == null) return const SizedBox.shrink();
+
+        final fromContext = startNodeKey.currentContext;
+        final toContext = endNodeKey.currentContext;
+        if (fromContext == null || toContext == null)
+          return const SizedBox.shrink();
+
+        final fromRenderBox = fromContext.findRenderObject() as RenderBox?;
+        final toRenderBox = toContext.findRenderObject() as RenderBox?;
+        if (fromRenderBox == null || toRenderBox == null)
+          return const SizedBox.shrink();
+
+        final fromSize = fromRenderBox.size;
+        final toSize = toRenderBox.size;
+
+        final globalStart = fromRenderBox.localToGlobal(
+          Offset(fromSize.width / 2, fromSize.height / 2),
+        );
+        final globalEnd = toRenderBox.localToGlobal(
+          Offset(toSize.width / 2, toSize.height / 2),
+        );
+
+        final localStart = box.globalToLocal(globalStart);
+        final localEnd = box.globalToLocal(globalEnd);
+
+        return GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onDoubleTap: () {
+            Provider.of<CardListProvider>(
+              context,
+              listen: false,
+            ).removeConnection(this);
+          },
+          child: ConnectionSpline(start: localStart, end: localEnd),
+        );
+      },
+    );
   }
 }
 

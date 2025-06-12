@@ -15,7 +15,7 @@ class _HomepageState extends State<Homepage> {
   final TransformationController _transformationController =
       TransformationController();
   double _currentScale = 1.0; // initial scale
-
+  final GlobalKey _stackKey = GlobalKey();
   @override
   void initState() {
     super.initState();
@@ -73,9 +73,10 @@ class _HomepageState extends State<Homepage> {
                       width: MediaQuery.of(context).size.width * 4,
                       height: MediaQuery.of(context).size.height * 4,
                       child: Stack(
+                        key: _stackKey,
                         children: [
                           ...cardListProvider.connections.map(
-                            (conn) => conn.buildConnection(),
+                            (conn) => conn.buildConnection(_stackKey),
                           ),
                           ...cardListProvider.buildAllCards(),
                         ],

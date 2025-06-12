@@ -23,22 +23,73 @@ class CustomCard extends StatefulWidget {
 class _CustomCardState extends State<CustomCard> {
   late Offset _position;
   bool _isDragging = false;
-
   Offset? _dragStart;
   Offset? _dragCurrent;
   bool _isConnecting = false;
+  late final GlobalKey _stackKey = GlobalKey();
 
   @override
   void initState() {
     super.initState();
     _position = widget.cardProvider.position;
-
     widget.cardProvider.addListener(() {
       if (mounted) {
-        setState(() {
-          _position = widget.cardProvider.position;
-        });
+        setState(() => _position = widget.cardProvider.position);
       }
+    });
+  }
+
+  void _onDragStart(Offset globalPosition, {required bool fromNode}) {
+    setState(() {
+      _isConnecting = true;
+      _dragStart = globalPosition;
+      _dragCurrent = globalPosition;
+    });
+  }
+
+  void _onDragUpdate(Offset globalPosition, {required bool fromNode}) {
+    setState(() {
+      _dragCurrent = globalPosition;
+    });
+  }
+
+  void _onDragEnd(Offset globalPosition, {required bool fromNode}) {
+    final cardListProvider = Provider.of<CardListProvider>(
+      context,
+      listen: false,
+    );
+
+    for (final targetCardProvider in cardListProvider.cardProviders) {
+      if (targetCardProvider.id == widget.cardProvider.id) continue;
+      final nodeKey = fromNode
+          ? targetCardProvider.toNodeKey
+          : targetCardProvider.fromNodeKey;
+      final context = nodeKey.currentContext;
+      if (context == null) continue;
+      final renderBox = context.findRenderObject();
+      if (renderBox is! RenderBox) continue;
+      final rect = renderBox.localToGlobal(Offset.zero) & renderBox.size;
+      if (rect.contains(globalPosition)) {
+        cardListProvider.addConnection(
+          Connection(
+            startNodeKey: fromNode
+                ? widget.cardProvider.fromNodeKey
+                : targetCardProvider.fromNodeKey,
+            endNodeKey: fromNode
+                ? targetCardProvider.toNodeKey
+                : widget.cardProvider.toNodeKey,
+            startProvider: fromNode ? widget.cardProvider : targetCardProvider,
+            endProvider: fromNode ? targetCardProvider : widget.cardProvider,
+          ),
+        );
+        break;
+      }
+    }
+
+    setState(() {
+      _isConnecting = false;
+      _dragStart = null;
+      _dragCurrent = null;
     });
   }
 
@@ -64,6 +115,7 @@ class _CustomCardState extends State<CustomCard> {
               builder: (context) => _buildDeleteConfirmationDialog(context),
             );
             if (confirm == true) {
+              cardListProvider.removeConnectionsForCard(widget.cardProvider);
               cardListProvider.removeCardProvider(widget.cardProvider);
             }
           },
@@ -79,34 +131,21 @@ class _CustomCardState extends State<CustomCard> {
         'Are you sure you want to delete this card? This action cannot be undone.',
       ),
       actions: [
-        _buildDialogAction(
-          text: 'Cancel',
-          isPrimary: false,
+        TextButton(
           onPressed: () => Navigator.of(context).pop(false),
+          child: const Text('Cancel'),
         ),
-        _buildDialogAction(
-          text: 'Delete',
-          isPrimary: true,
+        TextButton(
           onPressed: () => Navigator.of(context).pop(true),
+          child: Text(
+            'Delete',
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.error,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ),
       ],
-    );
-  }
-
-  Widget _buildDialogAction({
-    required String text,
-    required bool isPrimary,
-    required VoidCallback onPressed,
-  }) {
-    return TextButton(
-      onPressed: onPressed,
-      child: Text(
-        text,
-        style: TextStyle(
-          color: isPrimary ? Theme.of(context).colorScheme.error : null,
-          fontWeight: isPrimary ? FontWeight.bold : null,
-        ),
-      ),
     );
   }
 
@@ -134,113 +173,8 @@ class _CustomCardState extends State<CustomCard> {
       ),
     );
     if (newTitle != null && newTitle.trim().isNotEmpty) {
-      setState(() {
-        widget.cardProvider.setTitle(newTitle.trim());
-      });
+      setState(() => widget.cardProvider.setTitle(newTitle.trim()));
     }
-  }
-
-  void _onFromDragStart(Offset globalPosition) {
-    setState(() {
-      _isConnecting = true;
-      _dragStart = globalPosition;
-      _dragCurrent = globalPosition;
-    });
-  }
-
-  void _onFromDragUpdate(Offset globalPosition) {
-    setState(() {
-      _dragStart = widget.cardProvider.getFromKeyOffset();
-      _dragCurrent = globalPosition;
-    });
-  }
-
-  void _onToDragStart(Offset globalPosition) {
-    setState(() {
-      _isConnecting = true;
-      _dragStart = globalPosition;
-      _dragCurrent = globalPosition;
-    });
-  }
-
-  void _onToDragUpdate(Offset globalPosition) {
-    setState(() {
-      _dragStart = widget.cardProvider.getToKeyOffset();
-      _dragCurrent = globalPosition;
-    });
-  }
-
-  void _onFromDragEnd(Offset globalPosition) {
-    final cardListProvider = Provider.of<CardListProvider>(
-      context,
-      listen: false,
-    );
-
-    for (final targetCard in cardListProvider.cardProviders) {
-      // Don't connect to self
-      if (targetCard.id == widget.cardProvider.id) continue;
-
-      // Check if the drag ended on the ToNode of another card
-      final toNodeKey = targetCard.toNodeKey;
-      final context = toNodeKey.currentContext;
-      if (context == null) continue;
-      final renderObject = context.findRenderObject();
-      if (renderObject is! RenderBox) continue;
-      final toBox = renderObject as RenderBox;
-      final toRect = toBox.localToGlobal(Offset.zero) & toBox.size;
-      if (toRect.contains(globalPosition)) {
-        // Add connection using offsets
-        cardListProvider.addConnection(
-          Connection(
-            startOffset: widget.cardProvider.getFromKeyOffset(),
-            endOffset: targetCard.getToKeyOffset(),
-          ),
-        );
-        break;
-      }
-    }
-
-    setState(() {
-      _isConnecting = false;
-      _dragStart = null;
-      _dragCurrent = null;
-    });
-  }
-
-  void _onToDragEnd(Offset globalPosition) {
-    final cardListProvider = Provider.of<CardListProvider>(
-      context,
-      listen: false,
-    );
-
-    for (final targetCard in cardListProvider.cardProviders) {
-      // Don't connect to self
-      if (targetCard.id == widget.cardProvider.id) continue;
-
-      // Check if the drag ended on the FromNode of another card
-      final fromNodeKey = targetCard.fromNodeKey;
-      final fromBox =
-          fromNodeKey.currentContext?.findRenderObject() as RenderBox?;
-      if (fromBox != null) {
-        final fromRect = fromBox.localToGlobal(Offset.zero) & fromBox.size;
-        if (fromRect.contains(globalPosition)) {
-          // Add connection using offsets
-          cardListProvider.addConnection(
-            Connection(
-              startOffset: targetCard.getFromKeyOffset(),
-              endOffset: widget.cardProvider.getToKeyOffset(),
-            ),
-          );
-          break;
-        }
-      }
-    }
-
-    setState(() {
-      _isConnecting = false;
-      _dragStart = null;
-      _dragCurrent = null;
-    });
   }
 
   @override
@@ -249,15 +183,12 @@ class _CustomCardState extends State<CustomCard> {
       context,
       listen: false,
     );
-    final GlobalKey _stackKey = GlobalKey();
 
     return Positioned(
       left: _position.dx,
       top: _position.dy,
       child: GestureDetector(
-        onTap: () {
-          cardListProvider.selectCard(widget.cardProvider.id);
-        },
+        onTap: () => cardListProvider.selectCard(widget.cardProvider.id),
         onPanStart: (_) {
           cardListProvider.selectCard(widget.cardProvider.id);
           setState(() => _isDragging = true);
@@ -268,12 +199,9 @@ class _CustomCardState extends State<CustomCard> {
             widget.cardProvider.setPosition(_position);
           });
         },
-        onPanEnd: (_) {
-          setState(() => _isDragging = false);
-        },
+        onPanEnd: (_) => setState(() => _isDragging = false),
         child: Stack(
           key: _stackKey,
-
           clipBehavior: Clip.none,
           children: [
             Card(
@@ -317,28 +245,28 @@ class _CustomCardState extends State<CustomCard> {
                 ),
               ),
             ),
-            // From Node
+            // From Node (right)
             Positioned(
               right: 0,
               top: 40,
               child: FromConnectionNode(
                 cardProvider: widget.cardProvider,
                 nodeKey: widget.cardProvider.fromNodeKey,
-                onDragStart: _onFromDragStart,
-                onDragUpdate: _onFromDragUpdate,
-                onDragEnd: _onFromDragEnd,
+                onDragStart: (pos) => _onDragStart(pos, fromNode: true),
+                onDragUpdate: (pos) => _onDragUpdate(pos, fromNode: true),
+                onDragEnd: (pos) => _onDragEnd(pos, fromNode: true),
               ),
             ),
-            // To Node (left side)
+            // To Node (left)
             Positioned(
               left: 0,
               top: 40,
               child: ToConnectionNode(
                 cardProvider: widget.cardProvider,
                 nodeKey: widget.cardProvider.toNodeKey,
-                onDragStart: _onToDragStart,
-                onDragUpdate: _onToDragUpdate,
-                onDragEnd: _onToDragEnd,
+                onDragStart: (pos) => _onDragStart(pos, fromNode: false),
+                onDragUpdate: (pos) => _onDragUpdate(pos, fromNode: false),
+                onDragEnd: (pos) => _onDragEnd(pos, fromNode: false),
               ),
             ),
             if (_isConnecting && _dragStart != null && _dragCurrent != null)

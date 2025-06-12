@@ -49,6 +49,7 @@ class _HomePageFloatingActionButtonsState
   void _printAllCardProviders(BuildContext context) {
     final cardListProvider = context.read<CardListProvider>();
     print('--- Printing all CardProviders ---');
+    print(cardListProvider.connections);
     for (var cardProvider in cardListProvider.cardProviders) {
       print('Card title: ${cardProvider.title}');
       print('Departure location: ${cardProvider.departureLocation}');

@@ -95,24 +95,6 @@ class CardProvider extends ChangeNotifier {
     }
   }
 
-  Offset getFromKeyOffset() {
-    final context = fromNodeKey.currentContext;
-    if (context == null) return Offset.zero;
-    final renderBox = context.findRenderObject() as RenderBox?;
-    if (renderBox == null) return Offset.zero;
-    final size = renderBox.size;
-    return renderBox.localToGlobal(Offset(size.width / 2, size.height / 2));
-  }
-
-  Offset getToKeyOffset() {
-    final context = toNodeKey.currentContext;
-    if (context == null) return Offset.zero;
-    final renderBox = context.findRenderObject() as RenderBox?;
-    if (renderBox == null) return Offset.zero;
-    final size = renderBox.size;
-    return renderBox.localToGlobal(Offset(size.width / 2, size.height / 2));
-  }
-
   // Setters with notifyListeners
   void setTitle(String newTitle) {
     title = newTitle;
