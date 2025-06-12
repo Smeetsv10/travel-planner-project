@@ -197,7 +197,6 @@ class _ImageFieldState extends State<ImageField> {
       },
       child: MouseRegion(
         onEnter: (_) {
-          print('Mouse hover detected on ImageField');
           setState(() => _hovering = true);
           _focusNode.requestFocus();
         },

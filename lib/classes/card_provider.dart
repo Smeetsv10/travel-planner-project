@@ -7,8 +7,8 @@ enum CardType { blank, outFlight, returnFlight, accommodation, transportation }
 class CardProvider extends ChangeNotifier {
   final String id;
   final CardType cardType;
-  final GlobalKey fromNodeKey = GlobalKey.new();
-  final GlobalKey toNodeKey = GlobalKey.new();
+  final GlobalKey fromNodeKey = GlobalKey();
+  final GlobalKey toNodeKey = GlobalKey();
 
   String title;
   Offset position;
@@ -20,6 +20,7 @@ class CardProvider extends ChangeNotifier {
   String url;
   double price;
   Color color;
+  int transportIconIndex = 0;
 
   bool isConnect = false;
 
@@ -177,6 +178,11 @@ class CardProvider extends ChangeNotifier {
 
   void setPosition(Offset newPosition) {
     position = newPosition;
+    notifyListeners();
+  }
+
+  void setTransportIconIndex(int index) {
+    transportIconIndex = index;
     notifyListeners();
   }
 

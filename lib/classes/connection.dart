@@ -25,13 +25,15 @@ class Connection {
 
         final fromContext = startNodeKey.currentContext;
         final toContext = endNodeKey.currentContext;
-        if (fromContext == null || toContext == null)
+        if (fromContext == null || toContext == null) {
           return const SizedBox.shrink();
+        }
 
         final fromRenderBox = fromContext.findRenderObject() as RenderBox?;
         final toRenderBox = toContext.findRenderObject() as RenderBox?;
-        if (fromRenderBox == null || toRenderBox == null)
+        if (fromRenderBox == null || toRenderBox == null) {
           return const SizedBox.shrink();
+        }
 
         final fromSize = fromRenderBox.size;
         final toSize = toRenderBox.size;
@@ -57,6 +59,25 @@ class Connection {
           child: ConnectionSpline(start: localStart, end: localEnd),
         );
       },
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'startProviderId': startProvider.id,
+    'endProviderId': endProvider.id,
+  };
+
+  static Connection fromJson(
+    Map<String, dynamic> json,
+    List<CardProvider> providers,
+  ) {
+    final start = providers.firstWhere((p) => p.id == json['startProviderId']);
+    final end = providers.firstWhere((p) => p.id == json['endProviderId']);
+    return Connection(
+      startNodeKey: start.fromNodeKey,
+      endNodeKey: end.toNodeKey,
+      startProvider: start,
+      endProvider: end,
     );
   }
 }

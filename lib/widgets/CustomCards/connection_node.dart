@@ -62,7 +62,7 @@ class FromConnectionNode extends ConnectionNode {
     super.nodeKey,
     required super.cardProvider,
     super.size = 16,
-    super.color = Colors.green,
+    super.color = Colors.white,
   });
 }
 
@@ -75,6 +75,6 @@ class ToConnectionNode extends ConnectionNode {
     super.nodeKey,
     required super.cardProvider,
     super.size = 16,
-    super.color = Colors.red,
+    super.color = Colors.white,
   });
 }

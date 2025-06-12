@@ -13,7 +13,7 @@ import 'package:travel_scheduler/widgets/CustomCards/transportation_card.dart';
 
 class CardListProvider with ChangeNotifier {
   List<CardProvider> _cardProviders = [];
-  List<Connection> _connections = [];
+  final List<Connection> _connections = [];
 
   List<CardProvider> get cardProviders => List.unmodifiable(_cardProviders);
 
@@ -106,15 +106,30 @@ class CardListProvider with ChangeNotifier {
   }
 
   // Json encoding
-  List<Map<String, dynamic>> toJson() {
-    return _cardProviders.map((cardP) => cardP.toJson()).toList();
+  Map<String, dynamic> toJson() {
+    return {
+      'cards': _cardProviders.map((cardP) => cardP.toJson()).toList(),
+      'connections': _connections.map((conn) => conn.toJson()).toList(),
+    };
   }
 
-  void fromJson(List<dynamic> jsonList) {
-    _cardProviders = jsonList
-        .map((json) => CardProvider.fromJson(json as Map<String, dynamic>))
+  void fromJson(Map<String, dynamic> json) {
+    _cardProviders = (json['cards'] as List)
+        .map((j) => CardProvider.fromJson(j as Map<String, dynamic>))
         .toList();
+
+    _connections.clear();
+    if (json['connections'] != null) {
+      for (final connJson in json['connections']) {
+        _connections.add(Connection.fromJson(connJson, cardProviders));
+      }
+    }
     notifyListeners();
+
+    // Add this to trigger a rebuild after the first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      notifyListeners();
+    });
   }
 
   Future<void> saveCardsLocally(BuildContext context) async {
@@ -157,8 +172,8 @@ class CardListProvider with ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     final jsonString = prefs.getString('saved_cards');
     if (jsonString != null) {
-      final jsonList = jsonDecode(jsonString) as List<dynamic>;
-      fromJson(jsonList);
+      final jsonMap = jsonDecode(jsonString) as Map<String, dynamic>;
+      fromJson(jsonMap);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Cards loaded successfully!')),
       );
@@ -185,7 +200,7 @@ class CardListProvider with ChangeNotifier {
     final bytes = result.files.single.bytes;
     if (bytes == null) throw Exception('Failed to read file bytes');
     final contents = utf8.decode(bytes);
-    final jsonList = jsonDecode(contents) as List<dynamic>;
-    fromJson(jsonList);
+    final jsonMap = jsonDecode(contents) as Map<String, dynamic>;
+    fromJson(jsonMap);
   }
 }

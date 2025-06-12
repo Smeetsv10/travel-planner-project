@@ -20,7 +20,7 @@ class CustomCardField extends StatelessWidget {
   final TextStyle? dateTimeStyle;
   final bool flagDateField;
   final bool flagTimeField;
-  final bool flagTextField; // <-- New flag
+  final bool flagTextField;
 
   const CustomCardField({
     super.key,
