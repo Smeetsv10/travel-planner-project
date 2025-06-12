@@ -145,7 +145,7 @@ class _TransportationCardBodyState extends State<_TransportationCardBody> {
               ),
             ),
             // From Location selection
-            // To location selection
+            // To location
             CustomCardPriceField(
               controller: priceController,
               focusNode: priceFocusNode,
