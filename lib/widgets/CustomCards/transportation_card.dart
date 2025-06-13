@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:travel_scheduler/classes/card_provider.dart';
 import 'package:travel_scheduler/widgets/CustomCards/custom_card_field.dart';
 import 'package:travel_scheduler/widgets/CustomCards/custom_card_price_field.dart';
 import 'package:travel_scheduler/widgets/CustomCards/customcard.dart';
+import 'package:travel_scheduler/widgets/CustomCards/location_picker_dialog.dart';
 
 class TransportationCard extends CustomCard {
   TransportationCard({super.key, required super.cardProvider})
@@ -43,6 +45,9 @@ class _TransportationCardBodyState extends State<_TransportationCardBody> {
   @override
   void initState() {
     super.initState();
+
+    _selectedIconIndex = widget.cardProvider.transportIconIndex;
+
     fromController = TextEditingController(
       text: widget.cardProvider.departureLocation,
     );
@@ -145,6 +150,36 @@ class _TransportationCardBodyState extends State<_TransportationCardBody> {
               ),
             ),
             // From Location selection
+            CustomCardField(
+              label: "From",
+              iconWidget: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.location_on, color: Colors.white),
+                    tooltip: "Pick location on map",
+                    onPressed: () async {
+                      final picked = await showDialog<LatLng>(
+                        context: context,
+                        builder: (context) => LocationPickerDialog(),
+                      );
+                      if (picked != null) {
+                        fromController.text =
+                            "${picked.latitude}, ${picked.longitude}";
+                        widget.cardProvider.setDepartureLocation(
+                          fromController.text.trim(),
+                        );
+                        setState(() {});
+                      }
+                    },
+                  ),
+                  const Icon(Icons.arrow_forward, color: Colors.white),
+                ],
+              ),
+              controller: fromController,
+              focusNode: fromFocusNode,
+              onSubmitted: widget.cardProvider.setDepartureLocation,
+            ),
             // To location
             CustomCardPriceField(
               controller: priceController,

@@ -5,4 +5,5 @@ class AppSettings {
   static const double gridHeight = 10000;
   static const double gridWidth = 10000;
   static const double cardWidth = 340;
+  static const String kGoogleApiKey = 'AIzaSyAtcwK1VeYN_XkR8vPCy7k28ZXYYceD0To';
 }

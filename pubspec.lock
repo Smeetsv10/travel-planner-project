@@ -73,6 +73,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.6.0"
+  dio:
+    dependency: transitive
+    description:
+      name: dio
+      sha256: "253a18bbd4851fecba42f7343a1df3a9a4c1d31a2c1b37e221086b4fa8c8dbc9"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.8.0+1"
+  dio_web_adapter:
+    dependency: transitive
+    description:
+      name: dio_web_adapter
+      sha256: "7586e476d70caecaf1686d21eee7247ea43ef5c345eab9e0cc3583ff13378d78"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.1"
   fake_async:
     dependency: transitive
     description:
@@ -144,6 +160,38 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  geocoding:
+    dependency: "direct main"
+    description:
+      name: geocoding
+      sha256: "606be036287842d779d7ec4e2f6c9435fc29bbbd3c6da6589710f981d8852895"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.0.0"
+  geocoding_android:
+    dependency: transitive
+    description:
+      name: geocoding_android
+      sha256: ba810da90d6633cbb82bbab630e5b4a3b7d23503263c00ae7f1ef0316dcae5b9
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.0.1"
+  geocoding_ios:
+    dependency: transitive
+    description:
+      name: geocoding_ios
+      sha256: "43bde988312feb1a3cb6c3d514e9f4b04b564d1884fa56bd8241030bbb3bde36"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.2"
+  geocoding_platform_interface:
+    dependency: transitive
+    description:
+      name: geocoding_platform_interface
+      sha256: "8c2c8226e5c276594c2e18bfe88b19110ed770aeb7c1ab50ede570be8b92229b"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.2.0"
   google_maps:
     dependency: transitive
     description:
@@ -192,6 +240,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.5.12"
+  google_places_flutter:
+    dependency: "direct main"
+    description:
+      name: google_places_flutter
+      sha256: "5048f8c3e97dcb8ecfbf478bc336fefd8c4f9b903bfabcd3839c4b17eb8724eb"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.0"
   html:
     dependency: "direct main"
     description:
@@ -352,6 +408,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.1.5"
+  rxdart:
+    dependency: transitive
+    description:
+      name: rxdart
+      sha256: "0c7c0cedd93788d996e33041ffecda924cc54389199cde4e6a34b440f50044cb"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.27.7"
   sanitize_html:
     dependency: transitive
     description:

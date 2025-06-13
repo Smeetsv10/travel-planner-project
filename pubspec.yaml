@@ -21,6 +21,8 @@ dependencies:
   desktop_drop: ^0.6.0
   pasteboard: ^0.4.0
   google_maps_flutter: ^2.12.2
+  geocoding: ^4.0.0
+  google_places_flutter: ^2.1.0
 
 dev_dependencies:
   flutter_test:
