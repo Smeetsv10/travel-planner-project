@@ -1,26 +1,26 @@
 import 'dart:convert';
-import 'dart:typed_data';
-
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:travel_scheduler/classes/card_provider.dart';
-import 'package:travel_scheduler/classes/connection.dart';
+import 'package:travel_scheduler/classes/connection_provider.dart';
 import 'package:travel_scheduler/widgets/CustomCards/accomodation_card.dart';
+import 'package:travel_scheduler/widgets/CustomCards/connection.dart';
 import 'package:travel_scheduler/widgets/CustomCards/customcard.dart';
 import 'package:travel_scheduler/widgets/CustomCards/flight_card.dart';
 import 'package:travel_scheduler/widgets/CustomCards/transportation_card.dart';
 
 class CardListProvider with ChangeNotifier {
   List<CardProvider> _cardProviders = [];
-  final List<Connection> _connections = [];
+  List<ConnectionProvider> _connectionsProviders = [];
+  GlobalKey _stackKey = GlobalKey();
 
   List<CardProvider> get cardProviders => List.unmodifiable(_cardProviders);
-
-  // Dependant properties
+  List<ConnectionProvider> get connectionProviders =>
+      List.unmodifiable(_connectionsProviders);
+  GlobalKey get stackKey => _stackKey;
   int get totalCardCount => _cardProviders.length;
-
-  List<Connection> get connections => _connections;
 
   // CardProvider management
   void addCardProvider(CardProvider cardProvider) {
@@ -57,33 +57,71 @@ class CardListProvider with ChangeNotifier {
   }
 
   // Connections management
-  void addConnection(Connection connection) {
-    final exists = _connections.any(
-      (c) =>
-          c.startNodeKey == connection.startNodeKey &&
-          c.endNodeKey == connection.endNodeKey,
+  void addConnectionProvider(ConnectionProvider connectionProvider) {
+    final exists = _connectionsProviders.any(
+      (c) => c.id == connectionProvider.id,
     );
     if (!exists) {
-      _connections.add(connection);
+      _connectionsProviders.add(connectionProvider);
       notifyListeners();
     }
   }
 
-  void removeConnection(Connection connection) {
-    _connections.remove(connection);
+  void removeConnectionProvider(ConnectionProvider connectionProvider) {
+    _connectionsProviders.removeWhere((c) => c.id == connectionProvider.id);
     notifyListeners();
   }
 
-  void clearConnections() {
-    _connections.clear();
+  void clearConnectionProviders() {
+    _connectionsProviders.clear();
     notifyListeners();
   }
 
   void removeConnectionsForCard(CardProvider cardProvider) {
-    _connections.removeWhere(
+    // Collect all connections to be removed
+    final toRemove = _connectionsProviders
+        .where(
+          (conn) =>
+              conn.fromProvider.id == cardProvider.id ||
+              conn.targetProvider.id == cardProvider.id,
+        )
+        .toList();
+
+    // For each connection to be removed, reconnect its other endpoint to all other endpoints
+    for (final conn in toRemove) {
+      // Find all connections that share the same start or end as the card being removed
+      for (final other in toRemove) {
+        if (conn == other) continue;
+
+        // If both connections share the same card as start or end, connect their other endpoints
+        if (conn.fromProvider.id == cardProvider.id &&
+            other.targetProvider.id == cardProvider.id) {
+          // Connect conn.targetProvider to other.fromProvider
+          addConnectionProvider(
+            ConnectionProvider(
+              fromProvider: other.fromProvider,
+              targetProvider: conn.targetProvider,
+            ),
+          );
+        }
+        if (conn.targetProvider.id == cardProvider.id &&
+            other.fromProvider.id == cardProvider.id) {
+          // Connect conn.fromProvider to other.targetProvider
+          addConnectionProvider(
+            ConnectionProvider(
+              fromProvider: conn.fromProvider,
+              targetProvider: other.targetProvider,
+            ),
+          );
+        }
+      }
+    }
+
+    // Remove all connections involving the card
+    _connectionsProviders.removeWhere(
       (conn) =>
-          conn.startProvider.id == cardProvider.id ||
-          conn.endProvider.id == cardProvider.id,
+          conn.fromProvider.id == cardProvider.id ||
+          conn.targetProvider.id == cardProvider.id,
     );
     notifyListeners();
   }
@@ -105,11 +143,27 @@ class CardListProvider with ChangeNotifier {
     return _cardProviders.map(buildCardFromProvider).toList();
   }
 
+  // Build connection from connectionProvider
+  Widget buildConnectionFromProvider(ConnectionProvider connectionProvider) {
+    return Connection(
+      connectionProvider: connectionProvider,
+      stackKey: _stackKey,
+    );
+  }
+
+  List<Widget> buildAllConnections() {
+    return _connectionsProviders
+        .map((conn) => buildConnectionFromProvider(conn))
+        .toList();
+  }
+
   // Json encoding
   Map<String, dynamic> toJson() {
     return {
       'cards': _cardProviders.map((cardP) => cardP.toJson()).toList(),
-      'connections': _connections.map((conn) => conn.toJson()).toList(),
+      'connections': _connectionsProviders
+          .map((conn) => conn.toJson())
+          .toList(),
     };
   }
 
@@ -118,10 +172,15 @@ class CardListProvider with ChangeNotifier {
         .map((j) => CardProvider.fromJson(j as Map<String, dynamic>))
         .toList();
 
-    _connections.clear();
+    _connectionsProviders.clear();
     if (json['connections'] != null) {
       for (final connJson in json['connections']) {
-        _connections.add(Connection.fromJson(connJson, cardProviders));
+        _connectionsProviders.add(
+          ConnectionProvider.fromJson(
+            connJson as Map<String, dynamic>,
+            _cardProviders,
+          ),
+        );
       }
     }
     notifyListeners();

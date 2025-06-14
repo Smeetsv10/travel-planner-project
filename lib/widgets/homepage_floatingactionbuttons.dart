@@ -48,19 +48,29 @@ class _HomePageFloatingActionButtonsState
 
   void _printAllCardProviders(BuildContext context) {
     final cardListProvider = context.read<CardListProvider>();
-    print('--- Printing all CardProviders ---');
-    print(cardListProvider.connections);
-    for (var cardProvider in cardListProvider.cardProviders) {
-      print('Card title: ${cardProvider.title}');
-      print('Departure location: ${cardProvider.departureLocation}');
-      print('Departure datetime: ${cardProvider.departureDatetime}');
-      print('Arrival location: ${cardProvider.arrivalLocation}');
-      print('Arrival datetime: ${cardProvider.arrivalDatetime}');
-      print('Price: ${cardProvider.price}');
-      print('Url: ${cardProvider.url}');
-      print('Uid: ${cardProvider.id}');
-    }
-    print('--- End of CardProviders ---');
+    // print('--- Printing all CardProviders ---');
+    // print(cardListProvider.connections);
+    // for (var cardProvider in cardListProvider.cardProviders) {
+    //   print('Card title: ${cardProvider.title}');
+    //   print('Departure location: ${cardProvider.departureLocation}');
+    //   print('Departure datetime: ${cardProvider.departureDatetime}');
+    //   print('Arrival location: ${cardProvider.arrivalLocation}');
+    //   print('Arrival datetime: ${cardProvider.arrivalDatetime}');
+    //   print('Price: ${cardProvider.price}');
+    //   print('Url: ${cardProvider.url}');
+    //   print('Uid: ${cardProvider.id}');
+    // }
+    // print('--- End of CardProviders ---');
+    print(
+      cardListProvider.connectionProviders
+          .map((c) => c.fromProvider.id)
+          .toList(),
+    );
+    print(
+      cardListProvider.connectionProviders
+          .map((c) => c.targetProvider.id)
+          .toList(),
+    );
   }
 
   Widget _buildAddCardButton(BuildContext context) {

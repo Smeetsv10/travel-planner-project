@@ -15,7 +15,6 @@ class _HomepageState extends State<Homepage> {
   final TransformationController _transformationController =
       TransformationController();
   double _currentScale = 1.0; // initial scale
-  final GlobalKey _stackKey = GlobalKey();
   @override
   void initState() {
     super.initState();
@@ -65,6 +64,7 @@ class _HomepageState extends State<Homepage> {
             child: Consumer<CardListProvider>(
               builder: (context, cardListProvider, _) {
                 return Stack(
+                  key: cardListProvider.stackKey,
                   children: [
                     // Background
                     Positioned.fill(child: const BackgroundGridWidget()),
@@ -73,11 +73,8 @@ class _HomepageState extends State<Homepage> {
                       width: MediaQuery.of(context).size.width * 4,
                       height: MediaQuery.of(context).size.height * 4,
                       child: Stack(
-                        key: _stackKey,
                         children: [
-                          ...cardListProvider.connections.map(
-                            (conn) => conn.buildConnection(_stackKey),
-                          ),
+                          ...cardListProvider.buildAllConnections(),
                           ...cardListProvider.buildAllCards(),
                         ],
                       ),

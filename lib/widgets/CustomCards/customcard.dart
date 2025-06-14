@@ -3,7 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:travel_scheduler/classes/app_settings.dart';
 import 'package:travel_scheduler/classes/card_list_provider.dart';
 import 'package:travel_scheduler/classes/card_provider.dart';
-import 'package:travel_scheduler/classes/connection.dart';
+import 'package:travel_scheduler/classes/connection_provider.dart';
+import 'package:travel_scheduler/widgets/CustomCards/connection.dart';
 import 'package:travel_scheduler/widgets/CustomCards/connection_node.dart';
 
 class CustomCard extends StatefulWidget {
@@ -70,16 +71,10 @@ class _CustomCardState extends State<CustomCard> {
       if (renderBox is! RenderBox) continue;
       final rect = renderBox.localToGlobal(Offset.zero) & renderBox.size;
       if (rect.contains(globalPosition)) {
-        cardListProvider.addConnection(
-          Connection(
-            startNodeKey: fromNode
-                ? widget.cardProvider.fromNodeKey
-                : targetCardProvider.fromNodeKey,
-            endNodeKey: fromNode
-                ? targetCardProvider.toNodeKey
-                : widget.cardProvider.toNodeKey,
-            startProvider: fromNode ? widget.cardProvider : targetCardProvider,
-            endProvider: fromNode ? targetCardProvider : widget.cardProvider,
+        cardListProvider.addConnectionProvider(
+          ConnectionProvider(
+            fromProvider: widget.cardProvider,
+            targetProvider: targetCardProvider,
           ),
         );
         break;
