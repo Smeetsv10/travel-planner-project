@@ -152,29 +152,32 @@ class _TransportationCardBodyState extends State<_TransportationCardBody> {
             // From Location selection
             CustomCardField(
               label: "From",
-              iconWidget: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.location_on, color: Colors.white),
-                    tooltip: "Pick location on map",
-                    onPressed: () async {
-                      final picked = await showDialog<LatLng>(
-                        context: context,
-                        builder: (context) => LocationPickerDialog(),
-                      );
-                      if (picked != null) {
-                        fromController.text =
-                            "${picked.latitude}, ${picked.longitude}";
-                        widget.cardProvider.setDepartureLocation(
-                          fromController.text.trim(),
-                        );
-                        setState(() {});
-                      }
-                    },
+              labelWidth: 100,
+              iconWidget: Container(
+                color: Colors.yellow,
+                child: GestureDetector(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.location_on, color: Colors.white),
+                      const Icon(Icons.arrow_forward, color: Colors.white),
+                    ],
                   ),
-                  const Icon(Icons.arrow_forward, color: Colors.white),
-                ],
+                  onTap: () async {
+                    final picked = await showDialog<LatLng>(
+                      context: context,
+                      builder: (context) => LocationPickerDialog(),
+                    );
+                    if (picked != null) {
+                      fromController.text =
+                          "${picked.latitude}, ${picked.longitude}";
+                      widget.cardProvider.setDepartureLocation(
+                        fromController.text.trim(),
+                      );
+                      setState(() {});
+                    }
+                  },
+                ),
               ),
               controller: fromController,
               focusNode: fromFocusNode,

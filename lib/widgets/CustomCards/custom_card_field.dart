@@ -10,7 +10,7 @@ class CustomCardField extends StatelessWidget {
   final List<TextInputFormatter>? inputFormatters;
   final void Function(String)? onSubmitted;
   final ScrollController? scrollController;
-
+  final double? labelWidth;
   // Date/time support
   final DateTime? dateTime;
   final void Function(DateTime)? onDatePicked;
@@ -41,7 +41,10 @@ class CustomCardField extends StatelessWidget {
     this.flagDateField = false,
     this.flagTimeField = false,
     this.flagTextField = true,
+    this.labelWidth,
   });
+
+  double get computedLabelWidth => labelWidth ?? (label.length > 5 ? 130 : 75);
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +74,7 @@ class CustomCardField extends StatelessWidget {
         children: [
           if (iconWidget != null || label.isNotEmpty)
             SizedBox(
-              width: label.length > 5 ? 130 : 75,
+              width: computedLabelWidth,
               child: Row(
                 mainAxisSize: MainAxisSize.max,
                 children: [

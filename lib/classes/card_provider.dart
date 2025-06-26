@@ -37,6 +37,7 @@ class CardProvider extends ChangeNotifier {
     String? url,
     double? price,
     Color? color,
+    int? transportIconIndex,
   }) : cardType = cardType ?? CardType.blank,
        id = id ?? const Uuid().v4(),
        position = position ?? Offset.zero,
@@ -197,6 +198,7 @@ class CardProvider extends ChangeNotifier {
     'price': price,
     'position': {'dx': position.dx, 'dy': position.dy},
     'cardType': cardType.name,
+    'transportIconIndex': transportIconIndex,
   };
 
   // Deserialize from JSON (Map)
@@ -217,6 +219,7 @@ class CardProvider extends ChangeNotifier {
         (e) => e.name == (json['cardType'] ?? 'blank'),
         orElse: () => CardType.blank,
       ),
+      transportIconIndex: json['transportIconIndex'] ?? 0,
     );
   }
 

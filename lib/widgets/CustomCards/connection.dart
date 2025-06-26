@@ -83,12 +83,7 @@ class _ConnectionState extends State<Connection> {
           child: ConnectionSpline(
             start: localStart,
             end: localEnd,
-            debugRect: Rect.fromLTWH(
-              0,
-              0,
-              boundingRect.width,
-              boundingRect.height,
-            ),
+
             onTap: () {},
             onDoubleTap: () {
               Provider.of<CardListProvider>(
