@@ -7,8 +7,8 @@ enum CardType { blank, outFlight, returnFlight, accommodation, transportation }
 class CardProvider extends ChangeNotifier {
   final String id;
   final CardType cardType;
-  final GlobalKey fromNodeKey = GlobalKey();
-  final GlobalKey toNodeKey = GlobalKey();
+  final GlobalKey? fromNodeKey;
+  final GlobalKey? toNodeKey;
 
   String title;
   Offset position;
@@ -22,11 +22,11 @@ class CardProvider extends ChangeNotifier {
   Color color;
   int transportIconIndex = 0;
 
-  bool isConnect = false;
-
   CardProvider({
-    CardType? cardType,
     String? id,
+    CardType? cardType,
+    GlobalKey? fromNodeKey,
+    GlobalKey? toNodeKey,
     Offset? position,
 
     DateTime? departureDatetime,
@@ -40,6 +40,8 @@ class CardProvider extends ChangeNotifier {
     int? transportIconIndex,
   }) : cardType = cardType ?? CardType.blank,
        id = id ?? const Uuid().v4(),
+       fromNodeKey = fromNodeKey ?? GlobalKey(),
+       toNodeKey = toNodeKey ?? GlobalKey(),
        position = position ?? Offset.zero,
        departureDatetime = departureDatetime ?? DateTime.now(),
        arrivalDatetime = arrivalDatetime ?? DateTime.now(),
@@ -95,6 +97,41 @@ class CardProvider extends ChangeNotifier {
       case CardType.transportation:
         return const Color.fromRGBO(46, 125, 50, 0.9); // Forest Green
     }
+  }
+
+  CardProvider copyWith({
+    String? id,
+    CardType? cardType,
+    Offset? position,
+    Widget? icon,
+    DateTime? departureDatetime,
+    DateTime? arrivalDatetime,
+    String? title,
+    String? departureLocation,
+    String? arrivalLocation,
+    String? url,
+    double? price,
+    Color? color,
+    int? transportIconIndex,
+    GlobalKey? fromNodeKey,
+    GlobalKey? toNodeKey,
+  }) {
+    return CardProvider(
+      id: id ?? this.id,
+      cardType: cardType ?? this.cardType,
+      position: position ?? this.position,
+      departureDatetime: departureDatetime ?? this.departureDatetime,
+      arrivalDatetime: arrivalDatetime ?? this.arrivalDatetime,
+      title: title ?? this.title,
+      departureLocation: departureLocation ?? this.departureLocation,
+      arrivalLocation: arrivalLocation ?? this.arrivalLocation,
+      url: url ?? this.url,
+      price: price ?? this.price,
+      color: color ?? this.color,
+      transportIconIndex: transportIconIndex ?? this.transportIconIndex,
+      fromNodeKey: fromNodeKey, // can be null
+      toNodeKey: toNodeKey, // can be null
+    );
   }
 
   // Setters with notifyListeners

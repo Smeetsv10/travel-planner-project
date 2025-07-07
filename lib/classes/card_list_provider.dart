@@ -56,6 +56,51 @@ class CardListProvider with ChangeNotifier {
     }
   }
 
+  List<List<CardProvider>> get cardChainList {
+    List<List<CardProvider>> allChains = [];
+
+    // Build a map from card id to CardProvider for quick lookup
+    final Map<String, CardProvider> idToProvider = {
+      for (var card in _cardProviders) card.id: card,
+    };
+
+    // Build adjacency list: from card id to list of target card ids
+    final Map<String, List<String>> adjacency = {};
+    for (var conn in _connectionsProviders) {
+      adjacency.putIfAbsent(conn.fromProvider.id, () => []);
+      adjacency[conn.fromProvider.id]!.add(conn.targetProvider.id);
+    }
+
+    // Find root cards (cards that are not a target in any connection)
+    final Set<String> targets = {
+      for (var conn in _connectionsProviders) conn.targetProvider.id,
+    };
+    final List<CardProvider> roots = _cardProviders
+        .where((card) => !targets.contains(card.id))
+        .toList();
+
+    // Recursive DFS to find all paths from root to leaves
+    void dfs(String currentId, List<CardProvider> path) {
+      path.add(idToProvider[currentId]!);
+      if (!adjacency.containsKey(currentId) || adjacency[currentId]!.isEmpty) {
+        // Leaf node, add the path
+        allChains.add(List<CardProvider>.from(path));
+      } else {
+        for (var nextId in adjacency[currentId]!) {
+          if (path.any((c) => c.id == nextId)) continue; // Prevent cycles
+          dfs(nextId, path);
+        }
+      }
+      path.removeLast();
+    }
+
+    for (var root in roots) {
+      dfs(root.id, []);
+    }
+
+    return allChains;
+  }
+
   // Connections management
   void addConnectionProvider(ConnectionProvider connectionProvider) {
     final exists = _connectionsProviders.any(

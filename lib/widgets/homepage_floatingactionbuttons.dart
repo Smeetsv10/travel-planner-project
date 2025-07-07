@@ -4,6 +4,7 @@ import 'package:travel_scheduler/classes/card_list_provider.dart';
 import 'package:travel_scheduler/classes/app_settings.dart';
 import 'package:travel_scheduler/classes/card_provider.dart';
 import 'package:travel_scheduler/classes/functions.dart';
+import 'package:travel_scheduler/widgets/card_chains_page.dart';
 
 class HomePageFloatingActionButtons extends StatefulWidget {
   final TransformationController transformationController;
@@ -48,19 +49,20 @@ class _HomePageFloatingActionButtonsState
 
   void _printAllCardProviders(BuildContext context) {
     final cardListProvider = context.read<CardListProvider>();
-    // print('--- Printing all CardProviders ---');
-    // print(cardListProvider.connections);
-    // for (var cardProvider in cardListProvider.cardProviders) {
-    //   print('Card title: ${cardProvider.title}');
-    //   print('Departure location: ${cardProvider.departureLocation}');
-    //   print('Departure datetime: ${cardProvider.departureDatetime}');
-    //   print('Arrival location: ${cardProvider.arrivalLocation}');
-    //   print('Arrival datetime: ${cardProvider.arrivalDatetime}');
-    //   print('Price: ${cardProvider.price}');
-    //   print('Url: ${cardProvider.url}');
-    //   print('Uid: ${cardProvider.id}');
-    // }
-    // print('--- End of CardProviders ---');
+    print('--- Printing all CardProviders ---');
+    print('Total card count: ${cardListProvider.totalCardCount}');
+    for (var cardProvider in cardListProvider.cardProviders) {
+      print('Card title: ${cardProvider.title}');
+      print('Departure location: ${cardProvider.departureLocation}');
+      print('Departure datetime: ${cardProvider.departureDatetime}');
+      print('Arrival location: ${cardProvider.arrivalLocation}');
+      print('Arrival datetime: ${cardProvider.arrivalDatetime}');
+      print('Price: ${cardProvider.price}');
+      print('Url: ${cardProvider.url}');
+      print('Uid: ${cardProvider.id}');
+      print('---');
+    }
+    print('--- End of CardProviders ---');
     print(
       cardListProvider.connectionProviders
           .map((c) => c.fromProvider.id)
@@ -221,6 +223,37 @@ class _HomePageFloatingActionButtonsState
     );
   }
 
+  Widget _buildShowRootCardsButton(BuildContext context) {
+    return FloatingActionButton(
+      heroTag: 'show_root_cards',
+      onPressed: () {
+        final chains = context.read<CardListProvider>().cardChainList;
+        for (var chain in chains) {
+          print(chain.map((c) => c.title).join(' -> '));
+        }
+      },
+      backgroundColor: Colors.purple,
+      tooltip: 'Show Root Cards',
+      child: const Icon(Icons.account_tree),
+    );
+  }
+
+  void openCardChainsPage(BuildContext context) {
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => const CardChainsPage()));
+  }
+
+  Widget _buildShowChainsButton(BuildContext context) {
+    return FloatingActionButton(
+      heroTag: 'show_card_chains',
+      onPressed: () => openCardChainsPage(context),
+      backgroundColor: Colors.teal,
+      tooltip: 'Show Card Chains',
+      child: const Icon(Icons.grid_view),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final cardListProvider = context.read<CardListProvider>();
@@ -233,6 +266,10 @@ class _HomePageFloatingActionButtonsState
         _buildPrintButton(context),
         const SizedBox(height: 12),
         _buildSaveButton(context, cardListProvider),
+        const SizedBox(height: 12),
+        _buildShowRootCardsButton(context),
+        const SizedBox(height: 12),
+        _buildShowChainsButton(context),
       ],
     );
   }
