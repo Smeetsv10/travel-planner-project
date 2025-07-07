@@ -2,24 +2,29 @@ import 'package:flutter/material.dart';
 import 'package:travel_scheduler/classes/card_provider.dart';
 
 class ConnectionProvider extends ChangeNotifier {
-  String? id;
+  final String? id;
   final GlobalKey? fromNodeKey;
   final GlobalKey? toNodeKey;
   final CardProvider fromProvider;
   final CardProvider targetProvider;
   Color? color;
+  late final bool isValid;
 
   ConnectionProvider({
-    final String? id,
-    final Color? color,
-    final GlobalKey? fromNodeKey,
-    final GlobalKey? toNodeKey,
+    String? id,
+    Color? color,
+    GlobalKey? fromNodeKey,
+    GlobalKey? toNodeKey,
     required this.fromProvider,
     required this.targetProvider,
   }) : id = id ?? '${fromProvider.id}_${targetProvider.id}',
-       color = color ?? Colors.white,
        fromNodeKey = fromNodeKey ?? fromProvider.fromNodeKey,
-       toNodeKey = toNodeKey ?? targetProvider.toNodeKey;
+       toNodeKey = toNodeKey ?? targetProvider.toNodeKey {
+    isValid = fromProvider.departureDatetime.isBefore(
+      targetProvider.arrivalDatetime,
+    );
+    this.color = color ?? (isValid ? Colors.white : Colors.red);
+  }
 
   Map<String, dynamic> toJson() => {
     'fromProviderId': fromProvider.id,

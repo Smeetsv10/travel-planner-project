@@ -100,19 +100,12 @@ class _HomePageFloatingActionButtonsState
                 ListTile(
                   leading: SizedBox(width: 50, child: outgoingFlightIcon()),
                   title: const Text(
-                    'Add Outgoing Flight Card',
+                    'Add Flight Card',
                     style: TextStyle(color: Colors.white),
                   ),
-                  onTap: () => Navigator.pop(context, CardType.outFlight),
+                  onTap: () => Navigator.pop(context, CardType.flight),
                 ),
-                ListTile(
-                  leading: SizedBox(width: 50, child: returnFlightIcon()),
-                  title: const Text(
-                    'Add Return Flight Card',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  onTap: () => Navigator.pop(context, CardType.returnFlight),
-                ),
+
                 ListTile(
                   leading: SizedBox(width: 50, child: accomodationIcon()),
                   title: const Text(

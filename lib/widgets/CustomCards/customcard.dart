@@ -215,12 +215,21 @@ class _CustomCardState extends State<CustomCard> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            GestureDetector(
-              onDoubleTap: isInteractive ? editTitle : null,
+            Container(
+              height: 40,
+              decoration: BoxDecoration(
+                color: Colors.transparent,
+                border: Border.all(color: Colors.white, width: 2),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
               child: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  SizedBox(width: 60, child: widget.cardProvider.icon),
-                  Expanded(
+                  widget.cardProvider.icon,
+                  SizedBox(width: 10),
+                  GestureDetector(
+                    onDoubleTap: isInteractive ? editTitle : null,
                     child: Text(
                       widget.cardProvider.title,
                       style: const TextStyle(
@@ -234,6 +243,13 @@ class _CustomCardState extends State<CustomCard> {
                 ],
               ),
             ),
+            // Divider(
+            //   color: Colors.white,
+            //   height: 0,
+            //   thickness: 2,
+            //   indent: 35,
+            //   endIndent: 10 + 16,
+            // ),
             const SizedBox(height: 8),
             widget.body,
           ],
@@ -270,7 +286,7 @@ class _CustomCardState extends State<CustomCard> {
             // From Node (right)
             Positioned(
               right: 0,
-              top: 40,
+              top: 16 + 25,
               child: FromConnectionNode(
                 cardProvider: widget.cardProvider,
                 nodeKey: widget.cardProvider.fromNodeKey,

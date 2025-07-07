@@ -179,8 +179,7 @@ class CardListProvider with ChangeNotifier {
   Widget buildCardFromProvider(CardProvider cardProvider) {
     final card = switch (cardProvider.cardType) {
       CardType.blank => CustomCard(cardProvider: cardProvider),
-      CardType.outFlight ||
-      CardType.returnFlight => FlightCard(cardProvider: cardProvider),
+      CardType.flight => FlightCard(cardProvider: cardProvider),
       CardType.accommodation => AccommodationCard(cardProvider: cardProvider),
       CardType.transportation => TransportationCard(cardProvider: cardProvider),
     };

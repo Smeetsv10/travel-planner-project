@@ -22,6 +22,10 @@ Widget blankIcon() {
   return const Icon(Icons.note_add, color: Colors.white);
 }
 
+Widget flightIcon() {
+  return const Icon(Icons.flight, color: Colors.white);
+}
+
 Widget outgoingFlightIcon() {
   return const Row(
     mainAxisSize: MainAxisSize.min,

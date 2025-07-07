@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:travel_scheduler/classes/functions.dart';
 import 'package:uuid/uuid.dart';
 
-enum CardType { blank, outFlight, returnFlight, accommodation, transportation }
+enum CardType { blank, flight, accommodation, transportation }
 
 class CardProvider extends ChangeNotifier {
   final String id;
@@ -62,10 +62,8 @@ class CardProvider extends ChangeNotifier {
     switch (type) {
       case CardType.blank:
         return blankIcon();
-      case CardType.outFlight:
-        return outgoingFlightIcon();
-      case CardType.returnFlight:
-        return returnFlightIcon();
+      case CardType.flight:
+        return flightIcon();
       case CardType.accommodation:
         return accomodationIcon();
       case CardType.transportation:
@@ -77,10 +75,8 @@ class CardProvider extends ChangeNotifier {
     switch (type) {
       case CardType.blank:
         return 'Blank card';
-      case CardType.outFlight:
-        return 'Outgoing Flight';
-      case CardType.returnFlight:
-        return 'Return Flight';
+      case CardType.flight:
+        return 'Flight';
       case CardType.accommodation:
         return 'Accomodation';
       case CardType.transportation:
@@ -92,10 +88,8 @@ class CardProvider extends ChangeNotifier {
     switch (type) {
       case CardType.blank:
         return const Color.fromRGBO(96, 125, 139, 0.9); // Keep existing
-      case CardType.outFlight:
+      case CardType.flight:
         return const Color.fromRGBO(33, 150, 243, 0.9); // Bright Blue
-      case CardType.returnFlight:
-        return const Color.fromRGBO(63, 81, 181, 0.9); // Indigo Blue
       case CardType.accommodation:
         return const Color.fromARGB(230, 221, 70, 24); // Red-Orange
       case CardType.transportation:
@@ -121,8 +115,6 @@ class CardProvider extends ChangeNotifier {
     GlobalKey? toNodeKey,
     bool? isInteractive,
   }) {
-    print(this.transportIconIndex);
-
     return CardProvider(
       id: id ?? this.id,
       cardType: cardType ?? this.cardType,
