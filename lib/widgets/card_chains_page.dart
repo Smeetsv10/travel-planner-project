@@ -18,38 +18,62 @@ class CardChainsPage extends StatelessWidget {
       ),
       body: Stack(
         children: [
-          const BackgroundGridWidget(),
+          // const BackgroundGridWidget(),
           SingleChildScrollView(
             padding: const EdgeInsets.all(24),
-            child: Column(
-              children: [
-                ...cardChains.map(
-                  (chain) => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        for (var cardProvider in chain)
-                          cardListProvider.buildCardFromProvider(
-                            cardProvider.copyWith(
-                              fromNodeKey: null,
-                              toNodeKey: null,
-                              // add any other interactive fields you want to nullify
+            child: SizedBox(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  for (int i = 0; i < cardChains.length; i++) ...[
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                              width: 60,
+                              child: Align(
+                                alignment: Alignment.center,
+                                child: RotatedBox(
+                                  quarterTurns: 3,
+                                  child: Text(
+                                    'Option ${i + 1}',
+                                    textAlign: TextAlign.center,
+                                    style: const TextStyle(
+                                      fontSize: 28,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white70,
+                                      letterSpacing: 2,
+                                    ),
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
-                      ],
+                            for (var cardProvider in cardChains[i])
+                              cardListProvider.buildCardFromProvider(
+                                cardProvider.copyWith(
+                                  fromNodeKey: null,
+                                  toNodeKey: null,
+                                  isInteractive: false,
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                if (cardChains.isEmpty)
-                  const Padding(
-                    padding: EdgeInsets.all(32),
-                    child: Text(
-                      'No chains found.',
-                      style: TextStyle(color: Colors.white70, fontSize: 18),
-                    ),
-                  ),
-              ],
+                    if (i != cardChains.length - 1)
+                      const Divider(
+                        color: Colors.white24,
+                        thickness: 1,
+                        height: 24,
+                      ),
+                  ],
+                ],
+              ),
             ),
           ),
         ],

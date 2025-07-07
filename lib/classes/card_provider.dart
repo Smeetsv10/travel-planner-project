@@ -9,6 +9,7 @@ class CardProvider extends ChangeNotifier {
   final CardType cardType;
   final GlobalKey? fromNodeKey;
   final GlobalKey? toNodeKey;
+  final bool isInteractive;
 
   String title;
   Offset position;
@@ -20,7 +21,7 @@ class CardProvider extends ChangeNotifier {
   String url;
   double price;
   Color color;
-  int transportIconIndex = 0;
+  int? transportIconIndex;
 
   CardProvider({
     String? id,
@@ -38,6 +39,7 @@ class CardProvider extends ChangeNotifier {
     double? price,
     Color? color,
     int? transportIconIndex,
+    bool? isInteractive,
   }) : cardType = cardType ?? CardType.blank,
        id = id ?? const Uuid().v4(),
        fromNodeKey = fromNodeKey ?? GlobalKey(),
@@ -48,6 +50,8 @@ class CardProvider extends ChangeNotifier {
        departureLocation = departureLocation ?? '',
        arrivalLocation = arrivalLocation ?? '',
        url = url ?? '',
+       transportIconIndex = transportIconIndex ?? 0,
+       isInteractive = isInteractive ?? true,
        price = price ?? 0.0,
        icon = _getIcon(cardType ?? CardType.blank),
        title = title ?? _getTitle(cardType ?? CardType.blank),
@@ -115,7 +119,10 @@ class CardProvider extends ChangeNotifier {
     int? transportIconIndex,
     GlobalKey? fromNodeKey,
     GlobalKey? toNodeKey,
+    bool? isInteractive,
   }) {
+    print(this.transportIconIndex);
+
     return CardProvider(
       id: id ?? this.id,
       cardType: cardType ?? this.cardType,
@@ -129,8 +136,9 @@ class CardProvider extends ChangeNotifier {
       price: price ?? this.price,
       color: color ?? this.color,
       transportIconIndex: transportIconIndex ?? this.transportIconIndex,
-      fromNodeKey: fromNodeKey, // can be null
-      toNodeKey: toNodeKey, // can be null
+      fromNodeKey: fromNodeKey,
+      toNodeKey: toNodeKey,
+      isInteractive: isInteractive ?? this.isInteractive,
     );
   }
 

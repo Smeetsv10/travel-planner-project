@@ -60,6 +60,7 @@ class _HomePageFloatingActionButtonsState
       print('Price: ${cardProvider.price}');
       print('Url: ${cardProvider.url}');
       print('Uid: ${cardProvider.id}');
+      print('transportIconIndex: ${cardProvider.transportIconIndex}');
       print('---');
     }
     print('--- End of CardProviders ---');

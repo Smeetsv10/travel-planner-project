@@ -28,9 +28,9 @@ class _ConnectionState extends State<Connection> {
       ]),
       builder: (context, _) {
         final fromNodeContext =
-            widget.connectionProvider.fromProvider.fromNodeKey.currentContext;
+            widget.connectionProvider.fromProvider.fromNodeKey!.currentContext;
         final toNodeContext =
-            widget.connectionProvider.targetProvider.toNodeKey.currentContext;
+            widget.connectionProvider.targetProvider.toNodeKey!.currentContext;
         final stackContext = widget.stackKey.currentContext;
 
         if (fromNodeContext == null ||
@@ -83,7 +83,7 @@ class _ConnectionState extends State<Connection> {
           child: ConnectionSpline(
             start: localStart,
             end: localEnd,
-
+            color: widget.connectionProvider.color,
             onTap: () {},
             onDoubleTap: () {
               Provider.of<CardListProvider>(
@@ -104,6 +104,7 @@ class ConnectionSpline extends StatefulWidget {
   final Rect? debugRect;
   final VoidCallback? onTap;
   final VoidCallback? onDoubleTap;
+  final Color? color;
 
   const ConnectionSpline({
     super.key,
@@ -112,6 +113,7 @@ class ConnectionSpline extends StatefulWidget {
     this.debugRect,
     this.onTap,
     this.onDoubleTap,
+    this.color,
   });
 
   @override
@@ -151,6 +153,7 @@ class _ConnectionSplineState extends State<ConnectionSpline> {
           widget.start,
           widget.end,
           debugRect: widget.debugRect,
+          color: widget.color,
         ),
         size: Size(widget.debugRect?.width ?? 1, widget.debugRect?.height ?? 1),
       ),
@@ -162,8 +165,10 @@ class _SplinePainter extends CustomPainter {
   final Offset start;
   final Offset end;
   final Rect? debugRect;
+  final Color color;
 
-  _SplinePainter(this.start, this.end, {this.debugRect});
+  _SplinePainter(this.start, this.end, {this.debugRect, Color? color})
+    : color = color ?? Colors.white70;
 
   Path _buildSplinePath() {
     final controlPoint1 = Offset(start.dx + 80, start.dy);
@@ -186,7 +191,7 @@ class _SplinePainter extends CustomPainter {
     final path = _buildSplinePath();
 
     final paint = Paint()
-      ..color = Colors.blueAccent
+      ..color = color
       ..strokeWidth = 3
       ..style = PaintingStyle.stroke;
 

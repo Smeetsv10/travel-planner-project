@@ -15,12 +15,16 @@ class CardListProvider with ChangeNotifier {
   List<CardProvider> _cardProviders = [];
   List<ConnectionProvider> _connectionsProviders = [];
   GlobalKey _stackKey = GlobalKey();
+  TransformationController? _transformationController =
+      TransformationController();
 
   List<CardProvider> get cardProviders => List.unmodifiable(_cardProviders);
   List<ConnectionProvider> get connectionProviders =>
       List.unmodifiable(_connectionsProviders);
   GlobalKey get stackKey => _stackKey;
   int get totalCardCount => _cardProviders.length;
+  TransformationController? get transformationController =>
+      _transformationController;
 
   // CardProvider management
   void addCardProvider(CardProvider cardProvider) {

@@ -46,7 +46,7 @@ class _TransportationCardBodyState extends State<_TransportationCardBody> {
   void initState() {
     super.initState();
 
-    _selectedIconIndex = widget.cardProvider.transportIconIndex;
+    _selectedIconIndex = widget.cardProvider.transportIconIndex!;
 
     fromController = TextEditingController(
       text: widget.cardProvider.departureLocation,

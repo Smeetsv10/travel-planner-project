@@ -62,21 +62,39 @@ class _CustomCardState extends State<CustomCard> {
 
     for (final targetCardProvider in cardListProvider.cardProviders) {
       if (targetCardProvider.id == widget.cardProvider.id) continue;
-      final nodeKey = fromNode
+
+      // Determine which node to check on the target card
+      final targetNodeKey = fromNode
           ? targetCardProvider.toNodeKey
           : targetCardProvider.fromNodeKey;
-      final context = nodeKey.currentContext;
+      final context = targetNodeKey?.currentContext;
       if (context == null) continue;
       final renderBox = context.findRenderObject();
       if (renderBox is! RenderBox) continue;
       final rect = renderBox.localToGlobal(Offset.zero) & renderBox.size;
       if (rect.contains(globalPosition)) {
-        cardListProvider.addConnectionProvider(
-          ConnectionProvider(
-            fromProvider: widget.cardProvider,
-            targetProvider: targetCardProvider,
-          ),
-        );
+        // Build the connection based on the drag direction
+        if (fromNode) {
+          // Drag started from this card's fromNode, connect to target's toNode
+          cardListProvider.addConnectionProvider(
+            ConnectionProvider(
+              fromProvider: widget.cardProvider,
+              targetProvider: targetCardProvider,
+              fromNodeKey: widget.cardProvider.fromNodeKey,
+              toNodeKey: targetCardProvider.toNodeKey,
+            ),
+          );
+        } else {
+          // Drag started from this card's toNode, connect to target's fromNode
+          cardListProvider.addConnectionProvider(
+            ConnectionProvider(
+              fromProvider: widget.cardProvider,
+              targetProvider: targetCardProvider,
+              fromNodeKey: widget.cardProvider.toNodeKey,
+              toNodeKey: targetCardProvider.fromNodeKey,
+            ),
+          );
+        }
         break;
       }
     }
@@ -179,6 +197,55 @@ class _CustomCardState extends State<CustomCard> {
       listen: false,
     );
 
+    final bool isInteractive = widget.cardProvider.isInteractive;
+
+    Widget cardContent = Card(
+      elevation: 8,
+      shadowColor: Colors.black45,
+      shape: RoundedRectangleBorder(
+        side: _isDragging && isInteractive
+            ? const BorderSide(color: Colors.white, width: 2)
+            : BorderSide.none,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      color: widget.cardProvider.color,
+      child: Container(
+        width: AppSettings.cardWidth,
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            GestureDetector(
+              onDoubleTap: isInteractive ? editTitle : null,
+              child: Row(
+                children: [
+                  SizedBox(width: 60, child: widget.cardProvider.icon),
+                  Expanded(
+                    child: Text(
+                      widget.cardProvider.title,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8),
+            widget.body,
+          ],
+        ),
+      ),
+    );
+
+    if (!isInteractive) {
+      return cardContent;
+    }
+
+    // Interactive card (with drag, delete, connection nodes)
     return Positioned(
       left: _position.dx,
       top: _position.dy,
@@ -199,47 +266,7 @@ class _CustomCardState extends State<CustomCard> {
           key: _stackKey,
           clipBehavior: Clip.none,
           children: [
-            Card(
-              elevation: 8,
-              shadowColor: Colors.black45,
-              shape: RoundedRectangleBorder(
-                side: _isDragging
-                    ? const BorderSide(color: Colors.white, width: 2)
-                    : BorderSide.none,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              color: widget.cardProvider.color,
-              child: Container(
-                width: AppSettings.cardWidth,
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    GestureDetector(
-                      onDoubleTap: editTitle,
-                      child: Row(
-                        children: [
-                          SizedBox(width: 60, child: widget.cardProvider.icon),
-                          Expanded(
-                            child: Text(
-                              widget.cardProvider.title,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    widget.body,
-                  ],
-                ),
-              ),
-            ),
+            cardContent,
             // From Node (right)
             Positioned(
               right: 0,

@@ -7,14 +7,17 @@ class ConnectionProvider extends ChangeNotifier {
   final GlobalKey? toNodeKey;
   final CardProvider fromProvider;
   final CardProvider targetProvider;
+  Color? color;
 
   ConnectionProvider({
     final String? id,
+    final Color? color,
     final GlobalKey? fromNodeKey,
     final GlobalKey? toNodeKey,
     required this.fromProvider,
     required this.targetProvider,
   }) : id = id ?? '${fromProvider.id}_${targetProvider.id}',
+       color = color ?? Colors.white,
        fromNodeKey = fromNodeKey ?? fromProvider.fromNodeKey,
        toNodeKey = toNodeKey ?? targetProvider.toNodeKey;
 
