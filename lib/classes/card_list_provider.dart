@@ -164,8 +164,8 @@ class CardListProvider with ChangeNotifier {
       _connectionsProviders.add(connectionProvider);
       notifyListeners();
     }
-    checkValidConnections();
-    notifyListeners();
+    // checkValidConnections();
+    // notifyListeners();
   }
 
   void removeConnectionProvider(ConnectionProvider connectionProvider) {

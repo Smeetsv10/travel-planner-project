@@ -48,7 +48,7 @@ class CardProvider extends ChangeNotifier {
        position = position ?? Offset.zero,
        departureDatetime =
            departureDatetime ??
-           ((cardType == CardType.flight || cardType == CardType.accommodation)
+           (cardType == CardType.flight
                ? DateTime(
                    DateTime.now().year,
                    DateTime.now().month,
@@ -56,15 +56,31 @@ class CardProvider extends ChangeNotifier {
                    12,
                    0,
                  )
+               : cardType == CardType.accommodation
+               ? DateTime(
+                   DateTime.now().year,
+                   DateTime.now().month,
+                   DateTime.now().day,
+                   14,
+                   0,
+                 )
                : null),
        arrivalDatetime =
            arrivalDatetime ??
-           ((cardType == CardType.flight || cardType == CardType.accommodation)
+           (cardType == CardType.flight
                ? DateTime(
                    DateTime.now().year,
                    DateTime.now().month,
                    DateTime.now().day,
                    12,
+                   0,
+                 )
+               : cardType == CardType.accommodation
+               ? DateTime(
+                   DateTime.now().year,
+                   DateTime.now().month,
+                   DateTime.now().day,
+                   10,
                    0,
                  )
                : null),

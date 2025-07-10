@@ -140,8 +140,8 @@ class _FlightCardBodyState extends State<_FlightCardBody> {
               onDatePicked: widget.cardProvider.setDepartureDate,
               onTimePicked: widget.cardProvider.setDepartureTime,
               inputFormatters: [UpperCaseTextFormatter()],
-              flagDateField: true,
-              flagTimeField: true,
+              showDateField: true,
+              showTimeField: true,
             ),
             CustomCardField(
               label: "To",
@@ -153,19 +153,38 @@ class _FlightCardBodyState extends State<_FlightCardBody> {
               onDatePicked: widget.cardProvider.setArrivalDate,
               onTimePicked: widget.cardProvider.setArrivalTime,
               inputFormatters: [UpperCaseTextFormatter()],
-              flagDateField: true,
-              flagTimeField: true,
+              showDateField: true,
+              showTimeField: true,
             ),
-            CustomCardPriceField(
-              controller: priceController,
-              focusNode: priceFocusNode,
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Expanded(
+                  child: CustomCardPriceField(
+                    controller: priceController,
+                    focusNode: priceFocusNode,
+                  ),
+                ),
+                Expanded(
+                  child: CustomCardUrlField(
+                    controller: urlController,
+                    focusNode: urlFocusNode,
+                    onSubmitted: widget.cardProvider.setUrl,
+                    scrollController: urlScrollController,
+                  ),
+                ),
+              ],
             ),
-            CustomCardUrlField(
-              controller: urlController,
-              focusNode: urlFocusNode,
-              onSubmitted: widget.cardProvider.setUrl,
-              scrollController: urlScrollController,
-            ),
+            // CustomCardPriceField(
+            //   controller: priceController,
+            //   focusNode: priceFocusNode,
+            // ),
+            // CustomCardUrlField(
+            //   controller: urlController,
+            //   focusNode: urlFocusNode,
+            //   onSubmitted: widget.cardProvider.setUrl,
+            //   scrollController: urlScrollController,
+            // ),
           ],
         );
       },

@@ -5,6 +5,7 @@ import 'package:travel_scheduler/widgets/CustomCards/custom_card_field.dart';
 import 'package:travel_scheduler/widgets/CustomCards/custom_card_price_field.dart';
 import 'package:travel_scheduler/widgets/CustomCards/customcard.dart';
 import 'package:travel_scheduler/widgets/CustomCards/location_picker_dialog.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class TransportationCard extends CustomCard {
   TransportationCard({super.key, required super.cardProvider})
@@ -33,11 +34,11 @@ class _TransportationCardBodyState extends State<_TransportationCardBody> {
   late FocusNode urlFocusNode;
 
   final List<IconData> _transportIcons = [
+    Icons.directions_car,
     Icons.directions_bus,
     Icons.train,
-    Icons.directions_car,
-    Icons.flight,
-    Icons.directions_boat,
+    Icons.directions_ferry,
+    Icons.directions_bike,
   ];
 
   int _selectedIconIndex = 0;
@@ -116,6 +117,21 @@ class _TransportationCardBodyState extends State<_TransportationCardBody> {
     super.dispose();
   }
 
+  Future<void> openGoogleMapsDirections({
+    required String destination,
+    String? origin,
+  }) async {
+    final uri = Uri.parse(
+      'https://www.google.com/maps/dir/?api=1'
+      '&destination=${Uri.encodeComponent(destination)}'
+      '${origin != null ? '&origin=${Uri.encodeComponent(origin)}' : ''}',
+    );
+
+    if (!await launchUrl(uri, webOnlyWindowName: '_blank')) {
+      throw Exception('Could not launch $uri');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
@@ -124,7 +140,7 @@ class _TransportationCardBodyState extends State<_TransportationCardBody> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
+            Container(
               padding: const EdgeInsets.only(bottom: 8.0),
               child: Row(
                 children: [
@@ -164,18 +180,22 @@ class _TransportationCardBodyState extends State<_TransportationCardBody> {
                     ],
                   ),
                   onTap: () async {
-                    final picked = await showDialog<LatLng>(
-                      context: context,
-                      builder: (context) => LocationPickerDialog(),
+                    await openGoogleMapsDirections(
+                      origin: "Home",
+                      destination: "Brussels Airport (BRU)",
                     );
-                    if (picked != null) {
-                      fromController.text =
-                          "${picked.latitude}, ${picked.longitude}";
-                      widget.cardProvider.setDepartureLocation(
-                        fromController.text.trim(),
-                      );
-                      setState(() {});
-                    }
+                    // final picked = await showDialog<LatLng>(
+                    //   context: context,
+                    //   builder: (context) => LocationPickerDialog(),
+                    // );
+                    // if (picked != null) {
+                    //   fromController.text =
+                    //       "${picked.latitude}, ${picked.longitude}";
+                    //   widget.cardProvider.setDepartureLocation(
+                    //     fromController.text.trim(),
+                    //   );
+                    //   setState(() {});
+                    // }
                   },
                 ),
               ),
@@ -185,6 +205,7 @@ class _TransportationCardBodyState extends State<_TransportationCardBody> {
             ),
             // To location
             CustomCardPriceField(
+              labelWidth: 100,
               controller: priceController,
               focusNode: priceFocusNode,
             ),

@@ -10,17 +10,16 @@ class CustomCardField extends StatelessWidget {
   final List<TextInputFormatter>? inputFormatters;
   final void Function(String)? onSubmitted;
   final ScrollController? scrollController;
-  final double? labelWidth;
-  // Date/time support
+  final double labelWidth;
   final DateTime? dateTime;
   final void Function(DateTime)? onDatePicked;
   final void Function(TimeOfDay)? onTimePicked;
   final BoxDecoration? borderDecoration;
   final TextStyle? labelStyle;
   final TextStyle? dateTimeStyle;
-  final bool flagDateField;
-  final bool flagTimeField;
-  final bool flagTextField;
+  final bool showDateField;
+  final bool showTimeField;
+  final bool showTextField;
 
   const CustomCardField({
     super.key,
@@ -38,13 +37,11 @@ class CustomCardField extends StatelessWidget {
     this.borderDecoration,
     this.labelStyle,
     this.dateTimeStyle,
-    this.flagDateField = false,
-    this.flagTimeField = false,
-    this.flagTextField = true,
-    this.labelWidth,
+    this.showDateField = false,
+    this.showTimeField = false,
+    this.showTextField = true,
+    this.labelWidth = 75,
   });
-
-  double get computedLabelWidth => labelWidth ?? (label.length > 5 ? 130 : 75);
 
   @override
   Widget build(BuildContext context) {
@@ -72,27 +69,28 @@ class CustomCardField extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          if (iconWidget != null || label.isNotEmpty)
-            SizedBox(
-              width: computedLabelWidth,
-              child: Row(
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  if (iconWidget != null) iconWidget!,
-                  if (iconWidget != null && label.isNotEmpty)
-                    const SizedBox(width: 4),
-                  if (label.isNotEmpty)
-                    Expanded(
-                      child: Text(
-                        label,
-                        style: lbStyle,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+          // 1. Icon + Label compartment
+          SizedBox(
+            width: labelWidth,
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                if (iconWidget != null) iconWidget!,
+                if (iconWidget != null && label.isNotEmpty)
+                  const SizedBox(width: 4),
+                if (label.isNotEmpty)
+                  Expanded(
+                    child: Text(
+                      label,
+                      style: lbStyle,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                ],
-              ),
+                  ),
+              ],
             ),
-          if (flagTextField && controller != null && focusNode != null) ...[
+          ),
+          // 2. Textbox compartment (expands)
+          if (showTextField && controller != null && focusNode != null) ...[
             Expanded(
               child: TextField(
                 controller: controller,
@@ -116,8 +114,10 @@ class CustomCardField extends StatelessWidget {
               ),
             ),
             SizedBox(width: 10),
-          ],
-          if (flagDateField && dateTime != null) ...[
+          ] else
+            const Expanded(child: SizedBox()), // Always expand to fill space
+          // 3. Optional date/time fields
+          if (showDateField && dateTime != null) ...[
             CustomCardField_Date(
               dateTime: dateTime!,
               onDatePicked: onDatePicked,
@@ -126,7 +126,7 @@ class CustomCardField extends StatelessWidget {
             ),
             SizedBox(width: 10),
           ],
-          if (flagTimeField && dateTime != null) ...[
+          if (showTimeField && dateTime != null) ...[
             CustomCardField_Time(
               dateTime: dateTime!,
               onTimePicked: onTimePicked,

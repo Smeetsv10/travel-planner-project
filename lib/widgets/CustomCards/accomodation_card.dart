@@ -83,6 +83,7 @@ class _AccommodationCardBodyState extends State<_AccommodationCardBody> {
             ),
             CustomCardField(
               label: "Check-in",
+              labelWidth: 125,
               iconWidget: const Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -90,13 +91,18 @@ class _AccommodationCardBodyState extends State<_AccommodationCardBody> {
                   Icon(Icons.arrow_forward, color: Colors.white),
                 ],
               ),
-              dateTime: widget.cardProvider.arrivalDatetime,
-              onDatePicked: widget.cardProvider.setArrivalDate,
-              flagDateField: true,
-              flagTextField: false,
+              dateTime: widget
+                  .cardProvider
+                  .departureDatetime, // Assuming this is the check-in date
+              onDatePicked: widget.cardProvider.setDepartureDate,
+              onTimePicked: widget.cardProvider.setDepartureTime,
+              showDateField: true,
+              showTimeField: true,
+              showTextField: false,
             ),
             CustomCardField(
               label: "Check-out",
+              labelWidth: 125,
               iconWidget: const Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -104,10 +110,14 @@ class _AccommodationCardBodyState extends State<_AccommodationCardBody> {
                   Icon(Icons.arrow_back, color: Colors.white),
                 ],
               ),
-              dateTime: widget.cardProvider.departureDatetime,
-              onDatePicked: widget.cardProvider.setDepartureDate,
-              flagDateField: true,
-              flagTextField: false,
+              dateTime: widget
+                  .cardProvider
+                  .arrivalDatetime, // Assuming this is the check-out date
+              onDatePicked: widget.cardProvider.setArrivalDate,
+              onTimePicked: widget.cardProvider.setArrivalTime,
+              showDateField: true,
+              showTimeField: true,
+              showTextField: false,
             ),
 
             Row(

@@ -6,18 +6,21 @@ class CustomCardPriceField extends StatelessWidget {
   final TextEditingController controller;
   final FocusNode focusNode;
   final void Function(double)? onPriceChanged;
+  final double? labelWidth;
 
   const CustomCardPriceField({
     super.key,
     required this.controller,
     required this.focusNode,
     this.onPriceChanged,
+    this.labelWidth,
   });
 
   @override
   Widget build(BuildContext context) {
     return CustomCardField(
       label: "Price",
+      labelWidth: labelWidth ?? 75,
       iconWidget: const Icon(Icons.euro, color: Colors.white),
       controller: controller,
       focusNode: focusNode,
