@@ -129,6 +129,7 @@ class _AccommodationCardBodyState extends State<_AccommodationCardBody> {
                     focusNode: priceFocusNode,
                   ),
                 ),
+                SizedBox(width: 10),
                 Expanded(
                   child: CustomCardUrlField(
                     controller: urlController,

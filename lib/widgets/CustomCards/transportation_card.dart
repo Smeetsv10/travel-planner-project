@@ -3,6 +3,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:travel_scheduler/classes/card_provider.dart';
 import 'package:travel_scheduler/widgets/CustomCards/custom_card_field.dart';
 import 'package:travel_scheduler/widgets/CustomCards/custom_card_price_field.dart';
+import 'package:travel_scheduler/widgets/CustomCards/custom_card_url_field.dart';
 import 'package:travel_scheduler/widgets/CustomCards/customcard.dart';
 import 'package:travel_scheduler/widgets/CustomCards/location_picker_dialog.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -27,6 +28,8 @@ class _TransportationCardBodyState extends State<_TransportationCardBody> {
   late TextEditingController priceController;
   late TextEditingController urlController;
   late ScrollController urlScrollController;
+  late ScrollController fromScrollController;
+  late ScrollController toScrollController;
 
   late FocusNode fromFocusNode;
   late FocusNode toFocusNode;
@@ -59,7 +62,10 @@ class _TransportationCardBodyState extends State<_TransportationCardBody> {
       text: widget.cardProvider.price.toString(),
     );
     urlController = TextEditingController(text: widget.cardProvider.url);
+
     urlScrollController = ScrollController();
+    fromScrollController = ScrollController();
+    toScrollController = ScrollController();
 
     fromFocusNode = FocusNode();
     toFocusNode = FocusNode();
@@ -68,11 +74,19 @@ class _TransportationCardBodyState extends State<_TransportationCardBody> {
 
     fromFocusNode.addListener(() {
       widget.cardProvider.setDepartureLocation(fromController.text.trim());
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        fromController.selection = const TextSelection.collapsed(offset: 0);
+        fromScrollController.jumpTo(0);
+      });
     });
 
     toFocusNode.addListener(() {
       if (!toFocusNode.hasFocus) {
         widget.cardProvider.setArrivalLocation(toController.text.trim());
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          fromController.selection = const TextSelection.collapsed(offset: 0);
+          fromScrollController.jumpTo(0);
+        });
       }
     });
 
@@ -92,11 +106,9 @@ class _TransportationCardBodyState extends State<_TransportationCardBody> {
         widget.cardProvider.setUrl(text);
 
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          urlController.text = text;
+          // urlController.text = text;
           urlController.selection = const TextSelection.collapsed(offset: 0);
-          urlScrollController.jumpTo(
-            0,
-          ); // This forces the scroll to the beginning
+          urlScrollController.jumpTo(0);
         });
       }
     });
@@ -132,6 +144,34 @@ class _TransportationCardBodyState extends State<_TransportationCardBody> {
     }
   }
 
+  Widget buildLocationSelector() {
+    return Container(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: Row(
+        children: [
+          const Text("Type:", style: TextStyle(color: Colors.white70)),
+          const SizedBox(width: 8),
+          ...List.generate(_transportIcons.length, (i) {
+            return IconButton(
+              icon: Icon(
+                _transportIcons[i],
+                color: _selectedIconIndex == i
+                    ? const Color.fromARGB(255, 255, 215, 64)
+                    : Colors.white54,
+              ),
+              onPressed: () {
+                setState(() {
+                  _selectedIconIndex = i;
+                  widget.cardProvider.setTransportIconIndex(i);
+                });
+              },
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
@@ -140,32 +180,7 @@ class _TransportationCardBodyState extends State<_TransportationCardBody> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              padding: const EdgeInsets.only(bottom: 8.0),
-              child: Row(
-                children: [
-                  const Text("Type:", style: TextStyle(color: Colors.white70)),
-                  const SizedBox(width: 8),
-                  ...List.generate(_transportIcons.length, (i) {
-                    return IconButton(
-                      icon: Icon(
-                        _transportIcons[i],
-                        color: _selectedIconIndex == i
-                            ? const Color.fromARGB(255, 255, 215, 64)
-                            : Colors.white54,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _selectedIconIndex = i;
-                          widget.cardProvider.setTransportIconIndex(i);
-                        });
-                      },
-                    );
-                  }),
-                ],
-              ),
-            ),
-            // From Location selection
+            buildLocationSelector(),
             CustomCardField(
               label: "From",
               labelWidth: 100,
@@ -202,12 +217,53 @@ class _TransportationCardBodyState extends State<_TransportationCardBody> {
               controller: fromController,
               focusNode: fromFocusNode,
               onSubmitted: widget.cardProvider.setDepartureLocation,
+              scrollController: fromScrollController,
+            ),
+            CustomCardField(
+              label: "To",
+              labelWidth: 100,
+              iconWidget: Container(
+                child: GestureDetector(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.location_on, color: Colors.white),
+                      const Icon(Icons.arrow_back, color: Colors.white),
+                    ],
+                  ),
+                  onTap: () async {
+                    await openGoogleMapsDirections(
+                      origin: "Home",
+                      destination: "Brussels Airport (BRU)",
+                    );
+                  },
+                ),
+              ),
+              controller: toController,
+              focusNode: toFocusNode,
+              onSubmitted: widget.cardProvider.setArrivalLocation,
+              scrollController: toScrollController,
             ),
             // To location
-            CustomCardPriceField(
-              labelWidth: 100,
-              controller: priceController,
-              focusNode: priceFocusNode,
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Expanded(
+                  child: CustomCardPriceField(
+                    controller: priceController,
+                    focusNode: priceFocusNode,
+                  ),
+                ),
+                SizedBox(width: 10),
+                Expanded(
+                  child: CustomCardUrlField(
+                    controller: urlController,
+                    focusNode: urlFocusNode,
+                    onSubmitted: widget.cardProvider.setUrl,
+                    scrollController: urlScrollController,
+                  ),
+                ),
+              ],
             ),
           ],
         );

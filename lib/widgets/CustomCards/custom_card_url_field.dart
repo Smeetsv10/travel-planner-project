@@ -7,6 +7,7 @@ class CustomCardUrlField extends StatelessWidget {
   final FocusNode focusNode;
   final void Function(String)? onSubmitted;
   final ScrollController? scrollController;
+  final double? labelWidth;
 
   const CustomCardUrlField({
     super.key,
@@ -14,12 +15,14 @@ class CustomCardUrlField extends StatelessWidget {
     required this.focusNode,
     this.onSubmitted,
     this.scrollController,
+    this.labelWidth,
   });
 
   @override
   Widget build(BuildContext context) {
     return CustomCardField(
       label: "Url",
+      labelWidth: labelWidth ?? 60,
       iconWidget: InkWell(
         onTap: () async {
           final urlText = controller.text.trim();

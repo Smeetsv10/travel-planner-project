@@ -165,6 +165,7 @@ class _FlightCardBodyState extends State<_FlightCardBody> {
                     focusNode: priceFocusNode,
                   ),
                 ),
+                SizedBox(width: 10),
                 Expanded(
                   child: CustomCardUrlField(
                     controller: urlController,
