@@ -14,15 +14,15 @@ class CardProvider extends ChangeNotifier {
   String title;
   Offset position;
   Widget icon;
-  DateTime departureDatetime;
-  DateTime arrivalDatetime;
+  DateTime? departureDatetime;
+  DateTime? arrivalDatetime;
   String departureLocation;
   String arrivalLocation;
   String url;
   double price;
   Color color;
+  Color borderColor;
   int? transportIconIndex;
-
   CardProvider({
     String? id,
     CardType? cardType,
@@ -38,6 +38,7 @@ class CardProvider extends ChangeNotifier {
     String? url,
     double? price,
     Color? color,
+    Color? borderColor,
     int? transportIconIndex,
     bool? isInteractive,
   }) : cardType = cardType ?? CardType.blank,
@@ -45,8 +46,28 @@ class CardProvider extends ChangeNotifier {
        fromNodeKey = fromNodeKey ?? GlobalKey(),
        toNodeKey = toNodeKey ?? GlobalKey(),
        position = position ?? Offset.zero,
-       departureDatetime = departureDatetime ?? DateTime.now(),
-       arrivalDatetime = arrivalDatetime ?? DateTime.now(),
+       departureDatetime =
+           departureDatetime ??
+           ((cardType == CardType.flight || cardType == CardType.accommodation)
+               ? DateTime(
+                   DateTime.now().year,
+                   DateTime.now().month,
+                   DateTime.now().day,
+                   12,
+                   0,
+                 )
+               : null),
+       arrivalDatetime =
+           arrivalDatetime ??
+           ((cardType == CardType.flight || cardType == CardType.accommodation)
+               ? DateTime(
+                   DateTime.now().year,
+                   DateTime.now().month,
+                   DateTime.now().day,
+                   12,
+                   0,
+                 )
+               : null),
        departureLocation = departureLocation ?? '',
        arrivalLocation = arrivalLocation ?? '',
        url = url ?? '',
@@ -55,9 +76,10 @@ class CardProvider extends ChangeNotifier {
        price = price ?? 0.0,
        icon = _getIcon(cardType ?? CardType.blank),
        title = title ?? _getTitle(cardType ?? CardType.blank),
-       color = color ?? _getColor(cardType ?? CardType.blank);
+       color = color ?? _getColor(cardType ?? CardType.blank),
+       borderColor = borderColor ?? Colors.white;
 
-  // Dependant properties
+  // Dependent properties
   static Widget _getIcon(CardType type) {
     switch (type) {
       case CardType.blank:
@@ -150,17 +172,17 @@ class CardProvider extends ChangeNotifier {
       dt.year,
       dt.month,
       dt.day,
-      departureDatetime.hour,
-      departureDatetime.minute,
+      departureDatetime?.hour ?? 0,
+      departureDatetime?.minute ?? 0,
     );
     notifyListeners();
   }
 
   void setDepartureTime(TimeOfDay time) {
     departureDatetime = DateTime(
-      departureDatetime.year,
-      departureDatetime.month,
-      departureDatetime.day,
+      departureDatetime?.year ?? 0,
+      departureDatetime?.month ?? 0,
+      departureDatetime?.day ?? 0,
       time.hour,
       time.minute,
     );
@@ -172,17 +194,17 @@ class CardProvider extends ChangeNotifier {
       dt.year,
       dt.month,
       dt.day,
-      arrivalDatetime.hour,
-      arrivalDatetime.minute,
+      arrivalDatetime?.hour ?? 0,
+      arrivalDatetime?.minute ?? 0,
     );
     notifyListeners();
   }
 
   void setArrivalTime(TimeOfDay time) {
     arrivalDatetime = DateTime(
-      arrivalDatetime.year,
-      arrivalDatetime.month,
-      arrivalDatetime.day,
+      arrivalDatetime?.year ?? 0,
+      arrivalDatetime?.month ?? 0,
+      arrivalDatetime?.day ?? 0,
       time.hour,
       time.minute,
     );
@@ -227,8 +249,8 @@ class CardProvider extends ChangeNotifier {
   // Json formatting
   Map<String, dynamic> toJson() => {
     'id': id,
-    'departureDatetime': departureDatetime.toIso8601String(),
-    'arrivalDatetime': arrivalDatetime.toIso8601String(),
+    'departureDatetime': departureDatetime?.toIso8601String(),
+    'arrivalDatetime': arrivalDatetime?.toIso8601String(),
     'departureLocation': departureLocation,
     'arrivalLocation': arrivalLocation,
     'url': url,
@@ -261,19 +283,25 @@ class CardProvider extends ChangeNotifier {
   }
 
   // Computed properties
-  Duration get flightDuration => arrivalDatetime.difference(departureDatetime);
+  Duration get flightDuration =>
+      arrivalDatetime?.difference(departureDatetime ?? DateTime.now()) ??
+      Duration.zero;
 
-  TimeOfDay get departureTime =>
-      TimeOfDay(hour: departureDatetime.hour, minute: departureDatetime.minute);
+  TimeOfDay get departureTime => TimeOfDay(
+    hour: departureDatetime?.hour ?? 0,
+    minute: departureDatetime?.minute ?? 0,
+  );
 
-  int get departureHour => departureDatetime.hour;
+  int get departureHour => departureDatetime?.hour ?? 0;
 
-  int get departureMinute => departureDatetime.minute;
+  int get departureMinute => departureDatetime?.minute ?? 0;
 
-  TimeOfDay get arrivalTime =>
-      TimeOfDay(hour: arrivalDatetime.hour, minute: arrivalDatetime.minute);
+  TimeOfDay get arrivalTime => TimeOfDay(
+    hour: arrivalDatetime?.hour ?? 0,
+    minute: arrivalDatetime?.minute ?? 0,
+  );
 
-  int get arrivalHour => arrivalDatetime.hour;
+  int get arrivalHour => arrivalDatetime?.hour ?? 0;
 
-  int get arrivalMinute => arrivalDatetime.minute;
+  int get arrivalMinute => arrivalDatetime?.minute ?? 0;
 }

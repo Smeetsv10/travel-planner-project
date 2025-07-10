@@ -98,7 +98,7 @@ class _HomePageFloatingActionButtonsState
                   onTap: () => Navigator.pop(context, CardType.blank),
                 ),
                 ListTile(
-                  leading: SizedBox(width: 50, child: outgoingFlightIcon()),
+                  leading: SizedBox(width: 50, child: flightIcon()),
                   title: const Text(
                     'Add Flight Card',
                     style: TextStyle(color: Colors.white),

@@ -199,6 +199,34 @@ class _CustomCardState extends State<CustomCard> {
 
     final bool isInteractive = widget.cardProvider.isInteractive;
 
+    Widget titleContainer = Container(
+      height: 40,
+      // decoration: BoxDecoration(
+      //   color: Colors.transparent,
+      //   border: Border.all(color: Colors.white, width: 2),
+      //   borderRadius: BorderRadius.circular(16),
+      // ),
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          widget.cardProvider.icon,
+          SizedBox(width: 10),
+          GestureDetector(
+            onDoubleTap: isInteractive ? editTitle : null,
+            child: Text(
+              widget.cardProvider.title,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
     Widget cardContent = Card(
       elevation: 8,
       shadowColor: Colors.black45,
@@ -211,47 +239,22 @@ class _CustomCardState extends State<CustomCard> {
       color: widget.cardProvider.color,
       child: Container(
         width: AppSettings.cardWidth,
-        padding: const EdgeInsets.all(16),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              height: 40,
-              decoration: BoxDecoration(
-                color: Colors.transparent,
-                border: Border.all(color: Colors.white, width: 2),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  widget.cardProvider.icon,
-                  SizedBox(width: 10),
-                  GestureDetector(
-                    onDoubleTap: isInteractive ? editTitle : null,
-                    child: Text(
-                      widget.cardProvider.title,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            titleContainer,
             // Divider(
             //   color: Colors.white,
-            //   height: 0,
+            //   height: 10,
             //   thickness: 2,
-            //   indent: 35,
-            //   endIndent: 10 + 16,
+            //   // indent: 35,
+            //   // endIndent: 10 + 16,
             // ),
             const SizedBox(height: 8),
-            widget.body,
+            Container(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              child: widget.body,
+            ),
           ],
         ),
       ),

@@ -13,9 +13,9 @@ import 'package:travel_scheduler/widgets/CustomCards/transportation_card.dart';
 
 class CardListProvider with ChangeNotifier {
   List<CardProvider> _cardProviders = [];
-  List<ConnectionProvider> _connectionsProviders = [];
-  GlobalKey _stackKey = GlobalKey();
-  TransformationController? _transformationController =
+  final List<ConnectionProvider> _connectionsProviders = [];
+  final GlobalKey _stackKey = GlobalKey();
+  final TransformationController _transformationController =
       TransformationController();
 
   List<CardProvider> get cardProviders => List.unmodifiable(_cardProviders);
@@ -25,41 +25,6 @@ class CardListProvider with ChangeNotifier {
   int get totalCardCount => _cardProviders.length;
   TransformationController? get transformationController =>
       _transformationController;
-
-  // CardProvider management
-  void addCardProvider(CardProvider cardProvider) {
-    _cardProviders.add(cardProvider);
-    notifyListeners();
-  }
-
-  void removeCardProvider(CardProvider cardProvider) {
-    final findId = _cardProviders.indexWhere(
-      (cardP) => cardP.id == cardProvider.id,
-    );
-    if (findId != -1) {
-      _cardProviders.removeAt(findId);
-      notifyListeners();
-    }
-  }
-
-  void clearCardProviders() {
-    _cardProviders.clear();
-    notifyListeners();
-  }
-
-  void selectCard(String cardId) {
-    final selectedIndex = _cardProviders.indexWhere(
-      (provider) => provider.id == cardId,
-    );
-
-    if (selectedIndex != -1 && selectedIndex != _cardProviders.length - 1) {
-      // Remove the selected card and add it to the end (top of stack)
-      final selectedProvider = _cardProviders.removeAt(selectedIndex);
-      _cardProviders.add(selectedProvider);
-      notifyListeners();
-    }
-  }
-
   List<List<CardProvider>> get cardChainList {
     List<List<CardProvider>> allChains = [];
 
@@ -105,7 +70,92 @@ class CardListProvider with ChangeNotifier {
     return allChains;
   }
 
-  // Connections management
+  // CardProvider management
+  void addCardProvider(CardProvider cardProvider) {
+    _cardProviders.add(cardProvider);
+    notifyListeners();
+  }
+
+  void removeCardProvider(CardProvider cardProvider) {
+    final findId = _cardProviders.indexWhere(
+      (cardP) => cardP.id == cardProvider.id,
+    );
+    if (findId != -1) {
+      _cardProviders.removeAt(findId);
+      notifyListeners();
+    }
+  }
+
+  void clearCardProviders() {
+    _cardProviders.clear();
+    notifyListeners();
+  }
+
+  void selectCard(String cardId) {
+    final selectedIndex = _cardProviders.indexWhere(
+      (provider) => provider.id == cardId,
+    );
+
+    if (selectedIndex != -1 && selectedIndex != _cardProviders.length - 1) {
+      // Remove the selected card and add it to the end (top of stack)
+      final selectedProvider = _cardProviders.removeAt(selectedIndex);
+      _cardProviders.add(selectedProvider);
+      notifyListeners();
+    }
+  }
+
+  List<DateTime> getDateArray(List<CardProvider> cardChain) {
+    List<DateTime> dateArray = [];
+    for (var card in cardChain) {
+      if (card.departureDatetime != null) {
+        dateArray.add(card.departureDatetime!);
+      }
+      if (card.arrivalDatetime != null) {
+        dateArray.add(card.arrivalDatetime!);
+      }
+    }
+    return dateArray;
+  }
+
+  bool isAscending(List<DateTime> dates) {
+    for (int i = 0; i < dates.length - 1; i++) {
+      if (dates[i].isAfter(dates[i + 1])) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  void checkValidConnections() {
+    // Initialize boolean matrix size _connectionsProviders x cardChainList
+    List<List<bool>> isValidConnections = List.generate(
+      _connectionsProviders.length,
+      (_) => List.filled(cardChainList.length, true),
+    );
+    // Check for each cardChain if the connection is valid, i.e the dates are in ascending order
+    for (int j = 0; j < cardChainList.length; j++) {
+      List<CardProvider> cardChain = cardChainList[j];
+      // if the dateArray is not ascending, set the connections in the cardChain to false
+      if (!isAscending(getDateArray(cardChain))) {
+        // Find the connections that are in the cardChain
+        for (int i = 0; i < _connectionsProviders.length; i++) {
+          final connectionProvider = _connectionsProviders[i];
+          if (cardChain.contains(connectionProvider.fromProvider) &&
+              cardChain.contains(connectionProvider.targetProvider)) {
+            isValidConnections[i][j] = false;
+          }
+        }
+      }
+    }
+    // if any of the rows are false, set the connection to invalid
+    for (int i = 0; i < _connectionsProviders.length; i++) {
+      bool isValid = isValidConnections[i].every((v) => v);
+      _connectionsProviders[i].setValid(isValid);
+    }
+    notifyListeners();
+  }
+
+  // ConnectionProvider management
   void addConnectionProvider(ConnectionProvider connectionProvider) {
     final exists = _connectionsProviders.any(
       (c) => c.id == connectionProvider.id,
@@ -114,6 +164,8 @@ class CardListProvider with ChangeNotifier {
       _connectionsProviders.add(connectionProvider);
       notifyListeners();
     }
+    checkValidConnections();
+    notifyListeners();
   }
 
   void removeConnectionProvider(ConnectionProvider connectionProvider) {

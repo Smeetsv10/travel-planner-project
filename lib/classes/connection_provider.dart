@@ -8,7 +8,7 @@ class ConnectionProvider extends ChangeNotifier {
   final CardProvider fromProvider;
   final CardProvider targetProvider;
   Color? color;
-  late final bool isValid;
+  bool isValid = true;
 
   ConnectionProvider({
     String? id,
@@ -20,10 +20,13 @@ class ConnectionProvider extends ChangeNotifier {
   }) : id = id ?? '${fromProvider.id}_${targetProvider.id}',
        fromNodeKey = fromNodeKey ?? fromProvider.fromNodeKey,
        toNodeKey = toNodeKey ?? targetProvider.toNodeKey {
-    isValid = fromProvider.departureDatetime.isBefore(
-      targetProvider.arrivalDatetime,
-    );
     this.color = color ?? (isValid ? Colors.white : Colors.red);
+  }
+
+  void setValid(bool valid) {
+    isValid = valid;
+    color = valid ? Colors.white : Colors.red;
+    notifyListeners();
   }
 
   Map<String, dynamic> toJson() => {
