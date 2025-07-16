@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:travel_scheduler/classes/card_provider.dart';
 import 'package:travel_scheduler/widgets/CustomCards/custom_card_field.dart';
-import 'package:travel_scheduler/widgets/CustomCards/custom_card_price_field.dart';
-import 'package:travel_scheduler/widgets/CustomCards/custom_card_url_field.dart';
+import 'package:travel_scheduler/widgets/CustomCards/custom_card_priceUrl_field.dart';
 import 'package:travel_scheduler/widgets/CustomCards/customcard.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:pasteboard/pasteboard.dart';
@@ -120,25 +119,13 @@ class _AccommodationCardBodyState extends State<_AccommodationCardBody> {
               showTextField: false,
             ),
 
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Expanded(
-                  child: CustomCardPriceField(
-                    controller: priceController,
-                    focusNode: priceFocusNode,
-                  ),
-                ),
-                SizedBox(width: 10),
-                Expanded(
-                  child: CustomCardUrlField(
-                    controller: urlController,
-                    focusNode: urlFocusNode,
-                    onSubmitted: widget.cardProvider.setUrl,
-                    scrollController: urlScrollController,
-                  ),
-                ),
-              ],
+            PriceUrlCardField(
+              priceController: priceController,
+              priceFocusNode: priceFocusNode,
+              urlController: urlController,
+              urlFocusNode: urlFocusNode,
+              onUrlSubmitted: widget.cardProvider.setUrl,
+              urlScrollController: urlScrollController,
             ),
           ],
         );

@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:travel_scheduler/classes/card_provider.dart';
 import 'package:travel_scheduler/widgets/CustomCards/custom_card_field.dart';
-import 'package:travel_scheduler/widgets/CustomCards/custom_card_price_field.dart';
-import 'package:travel_scheduler/widgets/CustomCards/custom_card_url_field.dart';
+import 'package:travel_scheduler/widgets/CustomCards/custom_card_priceUrl_field.dart';
 import 'package:travel_scheduler/widgets/CustomCards/customcard.dart';
-import 'package:travel_scheduler/widgets/CustomCards/location_picker_dialog.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class TransportationCard extends CustomCard {
@@ -184,36 +181,22 @@ class _TransportationCardBodyState extends State<_TransportationCardBody> {
             CustomCardField(
               label: "From",
               labelWidth: 100,
-              iconWidget: Container(
-                color: Colors.yellow,
-                child: GestureDetector(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.location_on, color: Colors.white),
-                      const Icon(Icons.arrow_forward, color: Colors.white),
-                    ],
-                  ),
-                  onTap: () async {
-                    await openGoogleMapsDirections(
-                      origin: "Home",
-                      destination: "Brussels Airport (BRU)",
-                    );
-                    // final picked = await showDialog<LatLng>(
-                    //   context: context,
-                    //   builder: (context) => LocationPickerDialog(),
-                    // );
-                    // if (picked != null) {
-                    //   fromController.text =
-                    //       "${picked.latitude}, ${picked.longitude}";
-                    //   widget.cardProvider.setDepartureLocation(
-                    //     fromController.text.trim(),
-                    //   );
-                    //   setState(() {});
-                    // }
-                  },
+              iconWidget: GestureDetector(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.location_on, color: Colors.white),
+                    const Icon(Icons.arrow_forward, color: Colors.white),
+                  ],
                 ),
+                onTap: () async {
+                  await openGoogleMapsDirections(
+                    origin: "Home",
+                    destination: "Brussels Airport (BRU)",
+                  );
+                },
               ),
+
               controller: fromController,
               focusNode: fromFocusNode,
               onSubmitted: widget.cardProvider.setDepartureLocation,
@@ -222,48 +205,35 @@ class _TransportationCardBodyState extends State<_TransportationCardBody> {
             CustomCardField(
               label: "To",
               labelWidth: 100,
-              iconWidget: Container(
-                child: GestureDetector(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.location_on, color: Colors.white),
-                      const Icon(Icons.arrow_back, color: Colors.white),
-                    ],
-                  ),
-                  onTap: () async {
-                    await openGoogleMapsDirections(
-                      origin: "Home",
-                      destination: "Brussels Airport (BRU)",
-                    );
-                  },
+              iconWidget: GestureDetector(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.location_on, color: Colors.white),
+                    const Icon(Icons.arrow_back, color: Colors.white),
+                  ],
                 ),
+                onTap: () async {
+                  await openGoogleMapsDirections(
+                    origin: "Home",
+                    destination: "Brussels Airport (BRU)",
+                  );
+                },
               ),
+
               controller: toController,
               focusNode: toFocusNode,
               onSubmitted: widget.cardProvider.setArrivalLocation,
               scrollController: toScrollController,
             ),
             // To location
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Expanded(
-                  child: CustomCardPriceField(
-                    controller: priceController,
-                    focusNode: priceFocusNode,
-                  ),
-                ),
-                SizedBox(width: 10),
-                Expanded(
-                  child: CustomCardUrlField(
-                    controller: urlController,
-                    focusNode: urlFocusNode,
-                    onSubmitted: widget.cardProvider.setUrl,
-                    scrollController: urlScrollController,
-                  ),
-                ),
-              ],
+            PriceUrlCardField(
+              priceController: priceController,
+              priceFocusNode: priceFocusNode,
+              urlController: urlController,
+              urlFocusNode: urlFocusNode,
+              onUrlSubmitted: widget.cardProvider.setUrl,
+              urlScrollController: urlScrollController,
             ),
           ],
         );

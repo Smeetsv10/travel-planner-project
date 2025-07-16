@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:travel_scheduler/classes/card_list_provider.dart';
-import 'package:travel_scheduler/widgets/background_widget.dart';
 
 class CardChainsPage extends StatelessWidget {
   const CardChainsPage({super.key});
