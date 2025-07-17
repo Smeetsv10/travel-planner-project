@@ -52,7 +52,7 @@ Widget returnFlightIcon() {
   );
 }
 
-Widget accomodationIcon() {
+Widget accommodationIcon() {
   return const Icon(Icons.house, color: Colors.white);
 }
 

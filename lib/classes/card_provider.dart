@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:travel_scheduler/classes/app_settings.dart';
 import 'package:travel_scheduler/classes/functions.dart';
 import 'package:uuid/uuid.dart';
 
@@ -103,7 +104,7 @@ class CardProvider extends ChangeNotifier {
       case CardType.flight:
         return flightIcon();
       case CardType.accommodation:
-        return accomodationIcon();
+        return accommodationIcon();
       case CardType.transportation:
         return transportationIcon();
     }
@@ -125,13 +126,13 @@ class CardProvider extends ChangeNotifier {
   static Color _getColor(CardType type) {
     switch (type) {
       case CardType.blank:
-        return const Color.fromRGBO(96, 125, 139, 0.9); // Keep existing
+        return AppSettings.blankCardColor; // Keep existing
       case CardType.flight:
-        return const Color.fromRGBO(33, 150, 243, 0.9); // Bright Blue
+        return AppSettings.flightCardColor; // Bright Blue
       case CardType.accommodation:
-        return const Color.fromARGB(230, 221, 70, 24); // Red-Orange
+        return AppSettings.accommodationCardColor; // Red-Orange
       case CardType.transportation:
-        return const Color.fromRGBO(46, 125, 50, 0.9); // Forest Green
+        return AppSettings.transportationCardColor; // Forest Green
     }
   }
 

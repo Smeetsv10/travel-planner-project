@@ -5,6 +5,7 @@ import 'package:travel_scheduler/classes/app_settings.dart';
 import 'package:travel_scheduler/classes/card_provider.dart';
 import 'package:travel_scheduler/classes/functions.dart';
 import 'package:travel_scheduler/widgets/card_chains_page.dart';
+import 'package:travel_scheduler/widgets/custom_action_button.dart';
 
 class HomePageFloatingActionButtons extends StatefulWidget {
   final TransformationController transformationController;
@@ -89,25 +90,34 @@ class _HomePageFloatingActionButtonsState
             builder: (context) => Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                ListTile(
-                  leading: SizedBox(width: 50, child: blankIcon()),
-                  title: const Text(
-                    'Add Blank Card',
-                    style: TextStyle(color: Colors.white),
+                Container(
+                  decoration: BoxDecoration(
+                    color: AppSettings.blankCardColor,
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(20),
+                    ),
                   ),
-                  onTap: () => Navigator.pop(context, CardType.blank),
+                  child: ListTile(
+                    leading: SizedBox(width: 50, child: blankIcon()),
+                    title: const Text(
+                      'Add Blank Card',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    onTap: () => Navigator.pop(context, CardType.blank),
+                  ),
                 ),
                 ListTile(
                   leading: SizedBox(width: 50, child: flightIcon()),
+                  tileColor: AppSettings.flightCardColor,
                   title: const Text(
                     'Add Flight Card',
                     style: TextStyle(color: Colors.white),
                   ),
                   onTap: () => Navigator.pop(context, CardType.flight),
                 ),
-
                 ListTile(
-                  leading: SizedBox(width: 50, child: accomodationIcon()),
+                  leading: SizedBox(width: 50, child: accommodationIcon()),
+                  tileColor: AppSettings.accommodationCardColor,
                   title: const Text(
                     'Add Accomodation Card',
                     style: TextStyle(color: Colors.white),
@@ -116,6 +126,7 @@ class _HomePageFloatingActionButtonsState
                 ),
                 ListTile(
                   leading: SizedBox(width: 50, child: transportationIcon()),
+                  tileColor: AppSettings.transportationCardColor,
                   title: const Text(
                     'Add Transportation Card',
                     style: TextStyle(color: Colors.white),
@@ -217,19 +228,8 @@ class _HomePageFloatingActionButtonsState
     );
   }
 
-  Widget _buildShowRootCardsButton(BuildContext context) {
-    return FloatingActionButton(
-      heroTag: 'show_root_cards',
-      onPressed: () {
-        final chains = context.read<CardListProvider>().cardChainList;
-        for (var chain in chains) {
-          print(chain.map((c) => c.title).join(' -> '));
-        }
-      },
-      backgroundColor: Colors.purple,
-      tooltip: 'Show Root Cards',
-      child: const Icon(Icons.account_tree),
-    );
+  Widget _buildDebugButton(BuildContext context) {
+    return Container();
   }
 
   void openCardChainsPage(BuildContext context) {
@@ -261,7 +261,7 @@ class _HomePageFloatingActionButtonsState
         const SizedBox(height: 12),
         _buildSaveButton(context, cardListProvider),
         const SizedBox(height: 12),
-        _buildShowRootCardsButton(context),
+        _buildDebugButton(context),
         const SizedBox(height: 12),
         _buildShowChainsButton(context),
       ],
