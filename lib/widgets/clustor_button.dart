@@ -4,7 +4,7 @@ class ClusterButton extends StatefulWidget {
   final Widget child;
   final VoidCallback? onPressed;
   final List<Widget> children;
-  final double buttonSize;
+  final Size buttonSize;
   final Color backgroundColor;
   final Duration animationDuration;
   final AxisDirection axisDirection; // New parameter
@@ -14,7 +14,7 @@ class ClusterButton extends StatefulWidget {
     required this.child,
     this.onPressed,
     this.children = const [],
-    this.buttonSize = 56.0,
+    this.buttonSize = const Size(56.0, 56.0),
     this.backgroundColor = Colors.blue,
     this.animationDuration = const Duration(milliseconds: 120),
     this.axisDirection = AxisDirection.right, // Default to right
@@ -74,43 +74,49 @@ class _ClusterButtonState extends State<ClusterButton>
     Widget childrenWidget;
 
     final totalHeight =
-        (widget.children.length * widget.buttonSize) +
+        (widget.children.length * widget.buttonSize.height) +
         ((widget.children.length - 1) * 16.0);
     final totalWidth =
-        (widget.children.length * widget.buttonSize) +
+        (widget.children.length * widget.buttonSize.width) +
         ((widget.children.length - 1) * 16.0);
+
     switch (widget.axisDirection) {
       case AxisDirection.right:
-        left = offset.dx + 1.5 * widget.buttonSize;
-        top = offset.dy + (widget.buttonSize / 2) - (totalHeight / 2);
+        left = offset.dx + widget.buttonSize.width + 16;
+        top = offset.dy + (widget.buttonSize.height / 2) - (totalHeight / 2);
         childrenWidget = Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: _buildChildrenWithSpacing(isVertical: true),
         );
         break;
 
       case AxisDirection.left:
-        left = offset.dx - widget.buttonSize - 16;
-        top = offset.dy + (widget.buttonSize / 2) - (totalHeight / 2);
+        left = offset.dx - widget.buttonSize.width - 16;
+        top = offset.dy + (widget.buttonSize.height / 2) - (totalHeight / 2);
         childrenWidget = Column(
+          mainAxisSize: MainAxisSize.min,
+
           crossAxisAlignment: CrossAxisAlignment.end,
           children: _buildChildrenWithSpacing(isVertical: true),
         );
         break;
 
       case AxisDirection.down:
-        top = offset.dy + widget.buttonSize + 16;
-        left = offset.dx + (widget.buttonSize / 2) - (totalWidth / 2);
+        top = offset.dy + widget.buttonSize.height + 16;
+        left = offset.dx + (widget.buttonSize.width) - (totalWidth / 2);
         childrenWidget = Row(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: _buildChildrenWithSpacing(isVertical: false),
         );
         break;
 
       case AxisDirection.up:
-        top = offset.dy - widget.buttonSize - 16;
-        left = offset.dx + (widget.buttonSize / 2) - (totalWidth / 2);
+        top = offset.dy - widget.buttonSize.height - 16;
+        left = offset.dx + (widget.buttonSize.width) - (totalWidth / 2);
         childrenWidget = Row(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: _buildChildrenWithSpacing(isVertical: false),
         );
@@ -187,15 +193,20 @@ class _ClusterButtonState extends State<ClusterButton>
       child: AnimatedContainer(
         duration: widget.animationDuration,
         curve: Curves.easeOut,
-        width: widget.buttonSize,
-        height: widget.buttonSize,
+        width: widget.buttonSize.width,
+        height: widget.buttonSize.height,
         decoration: BoxDecoration(
           color: widget.backgroundColor,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(
+            _isExpanded ? 24 : 12,
+          ), // Double radius when expanded
+          border: _isExpanded
+              ? Border.all(
+                  color: Colors.white,
+                  width: 2,
+                ) // White border when expanded
+              : null,
         ),
-        transform: Matrix4.identity()
-          ..rotateZ(_isExpanded ? 0.785398 : 0), // π/4 radians = 45 degrees
-        transformAlignment: Alignment.center,
         child: Center(child: widget.child),
       ),
     );
