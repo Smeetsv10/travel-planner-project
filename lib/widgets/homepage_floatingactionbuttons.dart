@@ -6,7 +6,6 @@ import 'package:travel_scheduler/classes/card_provider.dart';
 import 'package:travel_scheduler/classes/functions.dart';
 import 'package:travel_scheduler/widgets/card_chains_page.dart';
 import 'package:travel_scheduler/widgets/clustor_button.dart';
-import 'package:travel_scheduler/widgets/custom_action_button.dart';
 
 class HomePageFloatingActionButtons extends StatefulWidget {
   final TransformationController transformationController;
@@ -78,175 +77,10 @@ class _HomePageFloatingActionButtonsState
     );
   }
 
-  Widget _buildAddCardButton(BuildContext context) {
-    return FloatingActionButton(
-      heroTag: 'add_card',
-      onPressed: () =>
-          showModalBottomSheet<CardType>(
-            context: context,
-            backgroundColor: Colors.blueAccent,
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-            ),
-            builder: (context) => Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    color: AppSettings.blankCardColor,
-                    borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(20),
-                    ),
-                  ),
-                  child: ListTile(
-                    leading: SizedBox(width: 50, child: blankIcon()),
-                    title: const Text(
-                      'Add Blank Card',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    onTap: () => Navigator.pop(context, CardType.blank),
-                  ),
-                ),
-                ListTile(
-                  leading: SizedBox(width: 50, child: flightIcon()),
-                  tileColor: AppSettings.flightCardColor,
-                  title: const Text(
-                    'Add Flight Card',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  onTap: () => Navigator.pop(context, CardType.flight),
-                ),
-                ListTile(
-                  leading: SizedBox(width: 50, child: accommodationIcon()),
-                  tileColor: AppSettings.accommodationCardColor,
-                  title: const Text(
-                    'Add Accomodation Card',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  onTap: () => Navigator.pop(context, CardType.accommodation),
-                ),
-                ListTile(
-                  leading: SizedBox(width: 50, child: transportationIcon()),
-                  tileColor: AppSettings.transportationCardColor,
-                  title: const Text(
-                    'Add Transportation Card',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  onTap: () => Navigator.pop(context, CardType.transportation),
-                ),
-              ],
-            ),
-          ).then((choice) {
-            if (choice != null) _addCard(context, choice);
-          }),
-      backgroundColor: Colors.blueAccent,
-      child: const Icon(Icons.add),
-    );
-  }
-
-  Widget _buildPrintButton(BuildContext context) {
-    return FloatingActionButton(
-      heroTag: 'print_cardproviders',
-      onPressed: () => _printAllCardProviders(context),
-      backgroundColor: Colors.green,
-      tooltip: 'Print all CardProviders',
-      child: const Icon(Icons.print),
-    );
-  }
-
-  Widget _buildSaveButton(
-    BuildContext context,
-    CardListProvider cardListProvider,
-  ) {
-    return FloatingActionButton(
-      heroTag: 'save_menu',
-      onPressed: () {
-        showModalBottomSheet(
-          context: context,
-          backgroundColor: Colors.blueAccent,
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          builder: (context) => Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: const Icon(Icons.save, color: Colors.white),
-                title: const Text(
-                  'Save Locally',
-                  style: TextStyle(color: Colors.white),
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                  cardListProvider.saveCardsLocally(context);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.file_download, color: Colors.white),
-                title: const Text(
-                  'Save As File',
-                  style: TextStyle(color: Colors.white),
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                  cardListProvider.saveCardsToFile(context);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.folder_open, color: Colors.white),
-                title: const Text(
-                  'Load From File',
-                  style: TextStyle(color: Colors.white),
-                ),
-                onTap: () async {
-                  Navigator.pop(context);
-                  try {
-                    await cardListProvider.loadCardsFromFile();
-                  } catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Error loading file: $e')),
-                    );
-                  }
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.restore_page, color: Colors.white),
-                title: const Text(
-                  'Reload App',
-                  style: TextStyle(color: Colors.white),
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                  cardListProvider.loadCardsLocally(context);
-                },
-              ),
-            ],
-          ),
-        );
-      },
-      backgroundColor: Colors.amber[700],
-      child: const Icon(Icons.save),
-    );
-  }
-
-  Widget _buildDebugButton(BuildContext context) {
-    return Container();
-  }
-
   void openCardChainsPage(BuildContext context) {
     Navigator.of(
       context,
     ).push(MaterialPageRoute(builder: (_) => const CardChainsPage()));
-  }
-
-  Widget _buildShowChainsButton(BuildContext context) {
-    return FloatingActionButton(
-      heroTag: 'show_card_chains',
-      onPressed: () => openCardChainsPage(context),
-      backgroundColor: Colors.teal,
-      tooltip: 'Show Card Chains',
-      child: const Icon(Icons.grid_view),
-    );
   }
 
   @override
@@ -256,15 +90,118 @@ class _HomePageFloatingActionButtonsState
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _buildAddCardButton(context),
+        // Main Add Card Button with nested card type buttons
+        ClusterButton(
+          backgroundColor: Colors.blueAccent,
+          axisDirection: AxisDirection.left,
+          child: const Icon(Icons.add, color: Colors.white),
+          children: [
+            ClusterButton(
+              backgroundColor: AppSettings.blankCardColor,
+              buttonSize: const Size(50, 50),
+              child: blankIcon(),
+              onPressed: () => _addCard(context, CardType.blank),
+              children: const [],
+            ),
+            ClusterButton(
+              backgroundColor: AppSettings.flightCardColor,
+              buttonSize: const Size(50, 50),
+              child: flightIcon(),
+              onPressed: () => _addCard(context, CardType.flight),
+              children: const [],
+            ),
+            ClusterButton(
+              backgroundColor: AppSettings.accommodationCardColor,
+              buttonSize: const Size(50, 50),
+              child: accommodationIcon(),
+              onPressed: () => _addCard(context, CardType.accommodation),
+              children: const [],
+            ),
+            ClusterButton(
+              backgroundColor: AppSettings.transportationCardColor,
+              buttonSize: const Size(50, 50),
+              child: transportationIcon(),
+              onPressed: () => _addCard(context, CardType.transportation),
+              children: const [],
+            ),
+          ],
+        ),
         const SizedBox(height: 12),
-        _buildPrintButton(context),
+
+        // Print Button
+        ClusterButton(
+          backgroundColor: Colors.green,
+          child: const Icon(Icons.print, color: Colors.white),
+          onPressed: () => _printAllCardProviders(context),
+          children: const [],
+        ),
         const SizedBox(height: 12),
-        _buildSaveButton(context, cardListProvider),
+
+        // Save/Load Button with nested options
+        ClusterButton(
+          backgroundColor: Colors.amber,
+          axisDirection: AxisDirection.left,
+          child: const Icon(Icons.save, color: Colors.white),
+          children: [
+            ClusterButton(
+              backgroundColor: Colors.orange,
+              buttonSize: const Size(50, 50),
+              child: const Icon(Icons.save, color: Colors.white, size: 20),
+              onPressed: () => cardListProvider.saveCardsLocally(context),
+              children: const [],
+            ),
+            ClusterButton(
+              backgroundColor: Colors.deepOrange,
+              buttonSize: const Size(50, 50),
+              child: const Icon(
+                Icons.file_download,
+                color: Colors.white,
+                size: 20,
+              ),
+              onPressed: () => cardListProvider.saveCardsToFile(context),
+              children: const [],
+            ),
+            ClusterButton(
+              backgroundColor: Colors.red,
+              buttonSize: const Size(50, 50),
+              child: const Icon(
+                Icons.folder_open,
+                color: Colors.white,
+                size: 20,
+              ),
+              onPressed: () async {
+                try {
+                  await cardListProvider.loadCardsFromFile();
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error loading file: $e')),
+                  );
+                }
+              },
+              children: const [],
+            ),
+            ClusterButton(
+              backgroundColor: Colors.purple,
+              buttonSize: const Size(50, 50),
+              child: const Icon(
+                Icons.restore_page,
+                color: Colors.white,
+                size: 20,
+              ),
+              onPressed: () => cardListProvider.loadCardsLocally(context),
+              children: const [],
+            ),
+          ],
+        ),
         const SizedBox(height: 12),
-        _buildDebugButton(context),
-        const SizedBox(height: 12),
-        _buildShowChainsButton(context),
+
+        // Show Chains Button
+        ClusterButton(
+          backgroundColor: Colors.teal,
+          child: const Icon(Icons.grid_view, color: Colors.white),
+          onPressed: () => openCardChainsPage(context),
+          children: const [],
+        ),
       ],
     );
   }
