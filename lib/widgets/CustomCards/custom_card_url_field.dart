@@ -22,7 +22,7 @@ class CustomCardUrlField extends StatelessWidget {
   Widget build(BuildContext context) {
     return CustomCardField(
       label: "Url",
-      labelWidth: labelWidth ?? 60,
+      labelWidth: labelWidth ?? 75,
       iconWidget: InkWell(
         onTap: () async {
           final urlText = controller.text.trim();

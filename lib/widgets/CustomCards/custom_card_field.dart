@@ -96,7 +96,9 @@ class CustomCardField extends StatelessWidget {
                 controller: controller,
                 focusNode: focusNode,
                 scrollController: scrollController,
-                onSubmitted: onSubmitted,
+                onSubmitted: (value) {
+                  onSubmitted?.call(value);
+                },
                 style: const TextStyle(color: Colors.white),
                 decoration: const InputDecoration(
                   isDense: true,
@@ -111,11 +113,12 @@ class CustomCardField extends StatelessWidget {
                 textAlign: TextAlign.left,
                 keyboardType: keyboardType,
                 inputFormatters: inputFormatters,
+                textInputAction: TextInputAction.next,
               ),
             ),
             SizedBox(width: 10),
           ] else
-            const Expanded(child: SizedBox()), // Always expand to fill space
+            const Expanded(child: SizedBox()),
           // 3. Optional date/time fields
           if (showDateField && dateTime != null) ...[
             CustomCardField_Date(
@@ -164,21 +167,28 @@ class CustomCardField_Date extends StatelessWidget {
         dateTimeStyle ?? const TextStyle(color: Colors.white54, fontSize: 14);
 
     return InkWell(
-      onTap: () async {
-        final picked = await showDatePicker(
-          context: context,
-          initialDate: dateTime,
-          firstDate: DateTime(2000),
-          lastDate: DateTime(2100),
-        );
-        if (picked != null && onDatePicked != null) onDatePicked!(picked);
-      },
+      onTap: () => _showDatePicker(context),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
-        decoration: border,
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.white38, width: 1),
+          borderRadius: BorderRadius.circular(4),
+        ),
         child: Text(_formatDate(dateTime), style: dtStyle),
       ),
     );
+  }
+
+  Future<void> _showDatePicker(BuildContext context) async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: dateTime,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+    if (picked != null && onDatePicked != null) {
+      onDatePicked!(picked);
+    }
   }
 }
 
@@ -197,7 +207,7 @@ class CustomCardField_Time extends StatelessWidget {
   });
 
   String _formatTime(DateTime dt) =>
-      "${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}"; // 24-hour format
+      "${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}";
 
   @override
   Widget build(BuildContext context) {
@@ -205,26 +215,31 @@ class CustomCardField_Time extends StatelessWidget {
         dateTimeStyle ?? const TextStyle(color: Colors.white54, fontSize: 14);
 
     return InkWell(
-      onTap: () async {
-        final picked = await showTimePicker(
-          context: context,
-          initialTime: TimeOfDay.fromDateTime(dateTime),
-          builder: (context, child) {
-            return MediaQuery(
-              data: MediaQuery.of(
-                context,
-              ).copyWith(alwaysUse24HourFormat: true),
-              child: child!,
-            );
-          },
-        );
-        if (picked != null && onTimePicked != null) onTimePicked!(picked);
-      },
+      onTap: () => _showTimePicker(context),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
-        decoration: border,
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.white38, width: 1),
+          borderRadius: BorderRadius.circular(4),
+        ),
         child: Text(_formatTime(dateTime), style: dtStyle),
       ),
     );
+  }
+
+  Future<void> _showTimePicker(BuildContext context) async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(dateTime),
+      builder: (context, child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null && onTimePicked != null) {
+      onTimePicked!(picked);
+    }
   }
 }

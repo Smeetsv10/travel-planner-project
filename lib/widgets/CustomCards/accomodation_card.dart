@@ -4,6 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:travel_scheduler/classes/card_provider.dart';
 import 'package:travel_scheduler/widgets/CustomCards/custom_card_field.dart';
 import 'package:travel_scheduler/widgets/CustomCards/custom_card_priceUrl_field.dart';
+import 'package:travel_scheduler/widgets/CustomCards/custom_card_price_field.dart';
+import 'package:travel_scheduler/widgets/CustomCards/custom_card_url_field.dart';
 import 'package:travel_scheduler/widgets/CustomCards/customcard.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:pasteboard/pasteboard.dart';
@@ -119,14 +121,19 @@ class _AccommodationCardBodyState extends State<_AccommodationCardBody> {
               showTextField: false,
             ),
 
-            PriceUrlCardField(
-              priceController: priceController,
-              priceFocusNode: priceFocusNode,
-              urlController: urlController,
-              urlFocusNode: urlFocusNode,
-              onUrlSubmitted: widget.cardProvider.setUrl,
-              urlScrollController: urlScrollController,
-            ),
+            // CustomCardPriceField(
+            //   focusNode: priceFocusNode,
+            //   controller: priceController,
+            //   onPriceChanged: (value) {
+            //     widget.cardProvider.setPrice(value);
+            //   },
+            // ),
+            // CustomCardUrlField(
+            //   controller: urlController,
+            //   focusNode: urlFocusNode,
+            //   onSubmitted: widget.cardProvider.setUrl,
+            //   scrollController: urlScrollController,
+            // ),
           ],
         );
       },

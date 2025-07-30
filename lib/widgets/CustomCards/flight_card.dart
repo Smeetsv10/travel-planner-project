@@ -3,6 +3,8 @@ import 'package:travel_scheduler/classes/card_provider.dart';
 import 'package:travel_scheduler/classes/functions.dart';
 import 'package:travel_scheduler/widgets/CustomCards/custom_card_field.dart';
 import 'package:travel_scheduler/widgets/CustomCards/custom_card_priceUrl_field.dart';
+import 'package:travel_scheduler/widgets/CustomCards/custom_card_price_field.dart';
+import 'package:travel_scheduler/widgets/CustomCards/custom_card_url_field.dart';
 import 'package:travel_scheduler/widgets/CustomCards/customcard.dart';
 
 class FlightCard extends CustomCard {
@@ -155,24 +157,29 @@ class _FlightCardBodyState extends State<_FlightCardBody> {
               showDateField: true,
               showTimeField: true,
             ),
-            PriceUrlCardField(
-              priceController: priceController,
-              priceFocusNode: priceFocusNode,
-              urlController: urlController,
-              urlFocusNode: urlFocusNode,
-              onUrlSubmitted: widget.cardProvider.setUrl,
-              urlScrollController: urlScrollController,
+            // PriceUrlCardField(
+            //   priceController: priceController,
+            //   priceFocusNode: priceFocusNode,
+            //   urlController: urlController,
+            //   urlFocusNode: urlFocusNode,
+            //   onUrlSubmitted: widget.cardProvider.setUrl,
+            //   urlScrollController: urlScrollController,
+            // ),
+            CustomCardPriceField(
+              labelWidth: 75,
+              focusNode: priceFocusNode,
+              controller: priceController,
+              onPriceChanged: (value) {
+                widget.cardProvider.setPrice(value);
+              },
             ),
-            // CustomCardPriceField(
-            //   controller: priceController,
-            //   focusNode: priceFocusNode,
-            // ),
-            // CustomCardUrlField(
-            //   controller: urlController,
-            //   focusNode: urlFocusNode,
-            //   onSubmitted: widget.cardProvider.setUrl,
-            //   scrollController: urlScrollController,
-            // ),
+            CustomCardUrlField(
+              labelWidth: 75,
+              controller: urlController,
+              focusNode: urlFocusNode,
+              onSubmitted: widget.cardProvider.setUrl,
+              scrollController: urlScrollController,
+            ),
           ],
         );
       },
