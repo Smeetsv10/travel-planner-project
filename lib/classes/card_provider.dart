@@ -279,23 +279,44 @@ class CardProvider extends ChangeNotifier {
 
   // Deserialize from JSON (Map)
   factory CardProvider.fromJson(Map<String, dynamic> json) {
+    Offset parsePosition(dynamic positionData) {
+      if (positionData == null) return Offset.zero;
+      if (positionData is! Map<String, dynamic>) return Offset.zero;
+
+      final dx = (positionData['dx'] ?? 0).toDouble();
+      final dy = (positionData['dy'] ?? 0).toDouble();
+      return Offset(dx, dy);
+    }
+
+    // Safe DateTime parsing
+    DateTime? parseDateTime(dynamic dateTimeData) {
+      if (dateTimeData == null) return null;
+      if (dateTimeData is String && dateTimeData.isNotEmpty) {
+        try {
+          return DateTime.parse(dateTimeData);
+        } catch (e) {
+          return null;
+        }
+      }
+      return null;
+    }
+
     return CardProvider(
-      id: json['id'] as String,
-      departureDatetime: DateTime.parse(json['departureDatetime']),
-      arrivalDatetime: DateTime.parse(json['arrivalDatetime']),
+      id: json['id'] as String? ?? const Uuid().v4(), // Also protect this
+      departureDatetime: parseDateTime(
+        json['departureDatetime'],
+      ), // ✅ Safe parsing
+      arrivalDatetime: parseDateTime(json['arrivalDatetime']), // ✅ Safe parsing
       departureLocation: json['departureLocation'] ?? '',
       arrivalLocation: json['arrivalLocation'] ?? '',
       url: json['url'] ?? '',
       price: (json['price'] ?? 0).toDouble(),
-      position: Offset(
-        (json['position']?['dx'] ?? 0).toDouble(),
-        (json['position']?['dy'] ?? 0).toDouble(),
-      ),
+      position: parsePosition(json['position']),
       cardType: CardType.values.firstWhere(
         (e) => e.name == (json['cardType'] ?? 'blank'),
         orElse: () => CardType.blank,
       ),
-      transportIconIndex: json['transportIconIndex'] ?? 0,
+      transportIconIndex: json['transportIconIndex'] ?? 0, // Uncomment this
     );
   }
 

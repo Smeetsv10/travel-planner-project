@@ -120,6 +120,21 @@ class _AccommodationCardBodyState extends State<_AccommodationCardBody> {
               showTimeField: true,
               showTextField: false,
             ),
+            CustomCardPriceField(
+              labelWidth: 100,
+              focusNode: priceFocusNode,
+              controller: priceController,
+              onPriceChanged: (value) {
+                widget.cardProvider.setPrice(value);
+              },
+            ),
+            CustomCardUrlField(
+              labelWidth: 100,
+              controller: urlController,
+              focusNode: urlFocusNode,
+              onSubmitted: widget.cardProvider.setUrl,
+              scrollController: urlScrollController,
+            ),
 
             // CustomCardPriceField(
             //   focusNode: priceFocusNode,
